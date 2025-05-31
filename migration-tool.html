@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resume Data Migration Tool</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      button {
+        background: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px 5px;
+      }
+      button:hover {
+        background: #45a049;
+      }
+      .warning {
+        background: #ffe6e6;
+        border: 1px solid #ffcccc;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 15px 0;
+      }
+      .success {
+        background: #e6ffe6;
+        border: 1px solid #ccffcc;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 15px 0;
+      }
+      .log {
+        background: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: monospace;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Resume Data Migration Tool</h1>
+
+      <div class="warning">
+        <strong>Warning:</strong> This tool will fix corrupted resume data in
+        the database. Make sure you are authenticated in the resume builder
+        application before running this.
+      </div>
+
+      <button onclick="checkStatus()">Check Auth Status</button>
+      <button onclick="checkUserData()">Check User Data</button>
+      <button onclick="migrateData()">Fix Corrupted Data</button>
+      <button onclick="clearLog()">Clear Log</button>
+
+      <div id="log" class="log"></div>
+    </div>
+
+    <script>
+      function log(message) {
+        const logDiv = document.getElementById("log");
+        const timestamp = new Date().toLocaleTimeString();
+        logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+      }
+
+      async function checkStatus() {
+        try {
+          log("Checking authentication status...");
+          const response = await fetch(
+            "http://localhost:5050/api/auth/status",
+            {
+              credentials: "include",
+            }
+          );
+          const data = await response.json();
+          log(`Auth Status: ${JSON.stringify(data, null, 2)}`);
+        } catch (error) {
+          log(`Error checking auth status: ${error.message}`);
+        }
+      }
+
+      async function checkUserData() {
+        try {
+          log("Checking user data structure...");
+          const response = await fetch(
+            "http://localhost:5050/api/resumes/debug/user",
+            {
+              credentials: "include",
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            log(`User Data: ${JSON.stringify(data, null, 2)}`);
+          } else {
+            log(`Error: ${response.status} - ${response.statusText}`);
+          }
+        } catch (error) {
+          log(`Error checking user data: ${error.message}`);
+        }
+      }
+
+      async function migrateData() {
+        try {
+          log("Starting data migration...");
+          const response = await fetch(
+            "http://localhost:5050/api/resumes/migrate/fix-resume-data",
+            {
+              method: "POST",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            log(`Migration Result: ${JSON.stringify(data, null, 2)}`);
+            if (data.action === "cleared_corrupted_data") {
+              log("SUCCESS: Corrupted data has been cleared!");
+            }
+          } else {
+            log(`Migration Error: ${response.status} - ${response.statusText}`);
+          }
+        } catch (error) {
+          log(`Error during migration: ${error.message}`);
+        }
+      }
+
+      function clearLog() {
+        document.getElementById("log").innerHTML = "";
+      }
+
+      // Auto-check status on load
+      window.onload = function () {
+        log(
+          "Migration tool loaded. Please ensure you are logged in to the resume builder application."
+        );
+        checkStatus();
+      };
+    </script>
+  </body>
+</html>

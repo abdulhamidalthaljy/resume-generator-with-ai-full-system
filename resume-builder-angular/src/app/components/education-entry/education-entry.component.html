@@ -1,0 +1,26 @@
+<div class="flex flex-col gap-3 p-4 border border-gray-200 bg-white rounded-lg">
+  <input type="text" placeholder="Institution Name (School, University)" required
+         class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+         [(ngModel)]="educationItem.school" (ngModelChange)="onInputChange()"
+         [name]="'child_edu_school_' + index" />
+
+  <input type="text" placeholder="Degree / Field of Study" required
+         class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+         [(ngModel)]="educationItem.degree" (ngModelChange)="onInputChange()"
+         [name]="'child_edu_degree_' + index" />
+
+  <input type="text" placeholder="Location (City, Country)" required
+         class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+         [(ngModel)]="educationItem.place" (ngModelChange)="onInputChange()"
+         [name]="'child_edu_place_' + index" />
+
+  <input type="text" placeholder="Date Range (e.g., 2016 - 2020)" required
+         class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+         [(ngModel)]="educationItem.date" (ngModelChange)="onInputChange()"
+         [name]="'child_edu_date_' + index" />
+
+  <button (click)="onRemoveClick()" type="button"
+          class="self-end px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition duration-300">
+    Remove Education
+  </button>
+</div>

@@ -1,0 +1,335 @@
+<form class="p-6 space-y-8" (submit)="$event.preventDefault()">
+  <!-- Prevent default form submission -->
+  <!-- Upload Image -->
+  <article class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">Upload Image</h3>
+    <div *ngIf="personalDetails.imageUrl" class="mb-4 text-center">
+      <img
+        [src]="personalDetails.imageUrl"
+        alt="Profile Preview"
+        class="inline-block h-32 w-32 object-cover rounded-full border-2 border-blue-300 shadow-sm"
+      />
+      <button
+        (click)="removeImage()"
+        type="button"
+        class="mt-2 text-sm text-red-600 hover:text-red-800"
+      >
+        Remove Image
+      </button>
+    </div>
+    <label
+      *ngIf="!personalDetails.imageUrl"
+      for="file-upload-input"
+      class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-blue-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-blue-50 transition duration-300"
+    >
+      <div class="flex flex-col items-center justify-center pt-5 pb-6">
+        <svg
+          class="w-10 h-10 text-blue-400 mb-3"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+          ></path>
+        </svg>
+        <span class="text-sm text-gray-600">Click to upload image</span>
+      </div>
+      <input
+        id="file-upload-input"
+        type="file"
+        accept="image/*"
+        class="hidden"
+        (change)="handleImageUpload($event)"
+      />
+    </label>
+  </article>
+
+  <!-- Information / Summary -->
+  <article class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">
+      Enter Your Information / Summary
+    </h3>
+    <textarea
+      placeholder="Write YOUR INFORMATION here"
+      rows="4"
+      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+      [(ngModel)]="informationSummary"
+      name="informationSummary"
+      (ngModelChange)="onFieldChange()"
+    ></textarea>
+    <div class="flex flex-wrap gap-3 mt-4">
+      <button
+        (click)="fillWithAIDemo()"
+        type="button"
+        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300 flex items-center gap-2"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        Fill automatically with AI (Demo)
+      </button>
+      <button
+        (click)="resetForm()"
+        type="button"
+        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-300 flex items-center gap-2"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        Reset All Inputs
+      </button>
+    </div>
+  </article>
+
+  <!-- Personal Details -->
+  <article class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">Personal Details</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input
+        type="text"
+        placeholder="Your Name"
+        required
+        class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="personalDetails.name"
+        name="pd_name"
+        (ngModelChange)="onFieldChange()"
+      />
+      <input
+        type="text"
+        placeholder="Your Birth Date (DD.MM.YYYY)"
+        class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="personalDetails.birthDate"
+        name="pd_birthDate"
+        (ngModelChange)="onFieldChange()"
+      />
+      <input
+        type="text"
+        placeholder="Your Address"
+        required
+        class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="personalDetails.address"
+        name="pd_address"
+        (ngModelChange)="onFieldChange()"
+      />
+      <input
+        type="text"
+        placeholder="Your Family Status"
+        class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="personalDetails.familyStatus"
+        name="pd_familyStatus"
+        (ngModelChange)="onFieldChange()"
+      />
+      <input
+        type="email"
+        placeholder="Your Email"
+        required
+        class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="personalDetails.email"
+        name="pd_email"
+        (ngModelChange)="onFieldChange()"
+      />
+      <input
+        type="tel"
+        placeholder="Your Phone"
+        required
+        class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="personalDetails.phone"
+        name="pd_phone"
+        (ngModelChange)="onFieldChange()"
+      />
+      <input
+        type="text"
+        placeholder="Your Nationality"
+        class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="personalDetails.nationality"
+        name="pd_nationality"
+        (ngModelChange)="onFieldChange()"
+      />
+      <input
+        type="text"
+        placeholder="EDV-Kenntnisse (IT Skills)"
+        class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        [(ngModel)]="personalDetails.itSkills"
+        name="pd_itSkills"
+        (ngModelChange)="onFieldChange()"
+      />
+      <textarea
+        placeholder="Strengths"
+        rows="3"
+        class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 md:col-span-2 resize-none"
+        [(ngModel)]="personalDetails.strengths"
+        name="pd_strengths"
+        (ngModelChange)="onFieldChange()"
+      ></textarea>
+    </div>
+  </article>
+
+  <!-- Languages -->
+  <article class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">Languages</h3>
+    <div class="space-y-4">
+      <!-- Iterate over languages and use app-language-entry for each -->
+      <div *ngFor="let lang of languages; let i = index; trackBy: trackByIndex">
+        <app-language-entry
+          [language]="lang"
+          [index]="i"
+          (remove)="removeLanguage($event)"
+          (languageChange)="handleLanguageEntryChange($event, i)"
+        >
+          <!--
+          If you want two-way binding on the object:
+          [(language)]="languages[i]"
+          Then in LanguageEntryComponent, the @Output must be named 'languageChange'
+          and the @Input must be named 'language'.
+          And you wouldn't need handleLanguageEntryChange.
+          The onInputChange in child would still call this.languageChange.emit(this.language)
+          And in parent ResumeFormComponent, you'd still need emitDataChanges() after this.
+        -->
+        </app-language-entry>
+      </div>
+    </div>
+    <button
+      (click)="addLanguage()"
+      type="button"
+      class="mt-4 w-full py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-100 hover:bg-blue-100 transition duration-300 flex items-center justify-center gap-2"
+    >
+      <!-- ... SVG and text ... -->
+      Add Language
+    </button>
+  </article>
+
+  <!-- Work Experience -->
+  <article class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">Work Experience</h3>
+    <div class="space-y-4">
+      <div
+        *ngFor="let exp of workExperience; let i = index; trackBy: trackByIndex"
+      >
+        <app-work-experience-entry
+          [experience]="exp"
+          [index]="i"
+          (remove)="removeWorkExperience($event)"
+          (experienceChange)="handleWorkExperienceEntryChange($event, i)"
+        >
+        </app-work-experience-entry>
+      </div>
+    </div>
+    <button
+      (click)="addWorkExperience()"
+      type="button"
+      class="mt-4 w-full py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-100 hover:bg-blue-100 transition duration-300 flex items-center justify-center gap-2"
+    >
+      <!-- ... SVG and text ... -->
+      Add Work Experience
+    </button>
+  </article>
+
+  <!-- Workshops / Certifications -->
+  <article class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">
+      Workshops / Certifications
+    </h3>
+    <div class="space-y-4">
+      <div *ngFor="let ws of workshops; let i = index; trackBy: trackByIndex">
+        <app-workshop-entry
+          [workshop]="ws"
+          [index]="i"
+          (remove)="removeWorkshop($event)"
+          (workshopChange)="handleWorkshopEntryChange($event, i)"
+        >
+        </app-workshop-entry>
+      </div>
+    </div>
+    <button
+      (click)="addWorkshop()"
+      type="button"
+      class="mt-4 w-full py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-100 hover:bg-blue-100 transition duration-300 flex items-center justify-center gap-2"
+    >
+      <!-- ... SVG and text ... -->
+      Add Workshop / Certification
+    </button>
+  </article>
+  <!-- Education -->
+  <article class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">Education</h3>
+    <div class="space-y-4">
+      <div *ngFor="let edu of education; let i = index; trackBy: trackByIndex">
+        <app-education-entry
+          [educationItem]="edu"
+          [index]="i"
+          (remove)="removeEducation($event)"
+          (educationItemChange)="handleEducationEntryChange($event, i)"
+        >
+        </app-education-entry>
+      </div>
+    </div>
+    <button
+      (click)="addEducation()"
+      type="button"
+      class="mt-4 w-full py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-100 hover:bg-blue-100 transition duration-300 flex items-center justify-center gap-2"
+    >
+      <!-- ... SVG and text ... -->
+      Add Education
+    </button>
+  </article>
+
+  <div class="action-buttons mt-4 space-x-4">
+    <button
+      (click)="backToDashboard()"
+      class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+    >
+      ← Back to Dashboard
+    </button>
+
+    <button
+      (click)="saveResume()"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    >
+      {{ resumeId ? "Update Resume" : "Save Resume" }}
+    </button>
+
+    <button
+      *ngIf="resumeId"
+      (click)="deleteResume()"
+      class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+    >
+      Delete Resume
+    </button>
+
+    <button
+      (click)="resetForm()"
+      class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 rounded"
+    >
+      Reset Form
+    </button>
+  </div>
+
+  <app-ai-input-dialog
+    *ngIf="showAIDialog"
+    (submit)="handleAIInput($event)"
+    (cancel)="showAIDialog = false"
+  ></app-ai-input-dialog>
+</form>

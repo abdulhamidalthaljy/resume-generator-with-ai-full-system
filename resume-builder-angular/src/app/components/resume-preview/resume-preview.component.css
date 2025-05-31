@@ -1,0 +1,57 @@
+/* resume-preview.component.css */
+.section-title {
+  @apply text-lg font-semibold text-blue-600 uppercase tracking-wider pb-1 mb-3 border-b-2 border-blue-200;
+  /* For printing */
+  @apply print:text-sm print:mb-2 print:pb-0.5 print:border-b print:border-gray-300 print:text-black; /* Make titles black for print */
+}
+
+@media print {
+  /* Ensure the component itself doesn't have restrictive overflow or height when printing */
+  :host { /* Targets the app-resume-preview element itself */
+    display: block !important; /* Ensure it behaves like a block for layout */
+    height: auto !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide scrollbars specifically within the component for print if they were from on-screen view */
+  .overflow-y-auto::-webkit-scrollbar {
+    display: none;
+  }
+  .overflow-y-auto {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    overflow-y: visible !important; /* This is key for the content container */
+    height: auto !important; /* Let it expand to content height */
+    max-height: none !important;
+  }
+
+  /* The div that wraps #resumeContent (the one with flex-1) */
+  /* Ensure it doesn't restrict height for print */
+  div.flex-1 { /* Be more specific if needed */
+      flex: none !important; /* Disable flex-1 for print */
+      height: auto !important;
+  }
+
+
+  /* The #resumeContent div itself */
+  /* It should already be fine if its parent is set to overflow:visible and height:auto for print */
+  /* Example: If #resumeContent has a specific class like .printable-resume-area */
+  /* .printable-resume-area {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+  } */
+
+  /* General print readiness for text */
+  body, p, span, li, h1, h2, h3, h4, h5, h6 {
+    color: #000 !important; /* Ensure text is black for readability */
+  }
+
+  /* Ensure backgrounds are printed if you rely on them (Tailwind bg- classes) */
+  * {
+    -webkit-print-color-adjust: exact !important; /* Chrome, Safari */
+    print-color-adjust: exact !important;         /* Firefox, Standard */
+  }
+}

@@ -1,0 +1,31 @@
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Print styles */
+@media print {
+  /* Hide everything by default when printing */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Make only the resume preview content and its children visible */
+  app-resume-preview,
+  app-resume-preview * {
+    visibility: visible;
+  }
+
+  /* Ensure app-resume-preview takes up the whole page for printing */
+  app-resume-preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible !important;
+    box-shadow: none !important;
+  }
+}

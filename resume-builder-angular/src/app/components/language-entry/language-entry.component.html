@@ -1,0 +1,18 @@
+<div class="flex flex-wrap gap-3 items-center p-4 border border-gray-200 bg-white rounded-lg">
+  <input type="text" placeholder="Language" required
+         class="flex-1 min-w-[150px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+         [(ngModel)]="language.name"
+         (ngModelChange)="onInputChange()"
+         [name]="'child_lang_name_' + index" /> <!-- Unique name for ngModel within *ngFor context -->
+
+  <input type="text" placeholder="Language Level (e.g., Native, C1)" required
+         class="flex-1 min-w-[150px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+         [(ngModel)]="language.level"
+         (ngModelChange)="onInputChange()"
+         [name]="'child_lang_level_' + index" /> <!-- Unique name -->
+
+  <button (click)="onRemoveClick()" type="button"
+          class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition duration-300">
+    Remove
+  </button>
+</div>

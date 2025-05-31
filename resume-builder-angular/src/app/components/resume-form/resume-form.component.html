@@ -1,0 +1,16 @@
+<!-- Add this at the top of your template -->
+<app-ai-input-dialog
+  *ngIf="showAIDialog"
+  (submit)="handleAIInput($event)"
+  (cancel)="handleAICancel()"
+></app-ai-input-dialog>
+
+<!-- Add AI buttons next to your form sections -->
+<button
+  (click)="openAiDialog('personalDetails')"
+  class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+>
+  Generate with AI
+</button>
+
+<!-- ... rest of your existing template ... -->

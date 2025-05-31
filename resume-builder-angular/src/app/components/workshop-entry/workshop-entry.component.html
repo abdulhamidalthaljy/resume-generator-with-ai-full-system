@@ -1,0 +1,21 @@
+<div class="flex flex-col gap-3 p-4 border border-gray-200 bg-white rounded-lg">
+  <input type="text" placeholder="Workshop/Certification Title" required
+         class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+         [(ngModel)]="workshop.title" (ngModelChange)="onInputChange()"
+         [name]="'child_ws_title_' + index" />
+
+  <input type="text" placeholder="Issuing Organization / Place" required
+         class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+         [(ngModel)]="workshop.place" (ngModelChange)="onInputChange()"
+         [name]="'child_ws_place_' + index" />
+
+  <input type="text" placeholder="Date (e.g., 2023)" required
+         class="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+         [(ngModel)]="workshop.date" (ngModelChange)="onInputChange()"
+         [name]="'child_ws_date_' + index" />
+
+  <button (click)="onRemoveClick()" type="button"
+          class="self-end px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition duration-300">
+    Remove Workshop
+  </button>
+</div>
