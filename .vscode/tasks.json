@@ -2,12 +2,31 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Start Backend Server",
+			"label": "Start Resume Backend",
 			"type": "shell",
-			"command": "node src/server.js",
+			"command": "node",
+			"args": ["src/server.js"],
+			"options": {
+				"cwd": "${workspaceFolder}/resume-builder-backend"
+			},
 			"group": "build",
 			"isBackground": true,
 			"problemMatcher": []
+		},
+		{
+			"command": "ng",
+			"args": [
+				"serve",
+				"--open"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/resume-builder-angular"
+			},
+			"group": "build",
+			"isBackground": true,
+			"label": "Start Angular Frontend",
+			"problemMatcher": [],
+			"type": "shell"
 		}
 	]
 }

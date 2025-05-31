@@ -487,11 +487,10 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/resume/new']);
   }
   previewResume(resume: any) {
-    // For now, let's navigate to edit mode for preview
-    // Later we can create a dedicated preview component
+    // Navigate to the dedicated preview page
     const resumeId = this.getResumeId(resume);
     if (resumeId) {
-      this.router.navigate(['/resume', resumeId]);
+      this.router.navigate(['/resume', resumeId, 'preview']);
     } else {
       alert('Cannot preview resume: Invalid resume ID');
     }

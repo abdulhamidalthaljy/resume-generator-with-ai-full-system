@@ -1,5 +1,7 @@
-import { Component, Input, OnInit,ViewChild,ElementRef  } from '@angular/core';
-import { CommonModule } from '@angular/common'; // For *ngIf, json pipe
+import { Component, Input, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ResumeService } from '../../services/resume.service';
 
 // Import all your models
 import { PersonalDetails } from '../../models/personal-details.model';
@@ -12,27 +14,83 @@ import { Education } from '../../models/education.model';
   selector: 'app-resume-preview',
   standalone: true,
   imports: [
-    CommonModule // Needed for *ngIf and the json pipe
+    CommonModule, // Needed for *ngIf and the json pipe
   ],
   templateUrl: './resume-preview.component.html',
-  styleUrls: ['./resume-preview.component.css']
+  styleUrls: ['./resume-preview.component.css'],
 })
 export class ResumePreviewComponent implements OnInit {
-  // Define Inputs for all data sections
-  // Using '?' makes them optional, or provide default empty values
-  // Or use '!' if you are certain the parent will always provide them.
+  // Define Inputs for all data sections (for when used as a child component)
   @Input() personalDetails?: PersonalDetails;
   @Input() informationSummary?: string;
   @Input() languages?: Language[];
   @Input() workExperience?: WorkExperience[];
   @Input() workshops?: Workshop[];
   @Input() education?: Education[];
-  @ViewChild('resumeContent') resumeContentEl!: ElementRef; // Changed name to resumeContentEl
-  isLoadingPdf = false; // To show a loading state
 
-  constructor() { }
+  // For standalone page usage
+  resumeId?: string;
+  resume: any = null;
+  isLoading = true;
+  error: string | null = null;
 
-  ngOnInit(): void { }
+  @ViewChild('resumeContent') resumeContentEl!: ElementRef;
+  isLoadingPdf = false;
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private resumeService: ResumeService
+  ) {}
+
+  ngOnInit(): void {
+    // Check if we're being used as a standalone page (route has ID parameter)
+    this.route.params.subscribe((params) => {
+      if (params['id']) {
+        this.resumeId = params['id'];
+        this.loadResumeData();
+      } else {
+        // Being used as a child component with @Input properties
+        this.isLoading = false;
+      }
+    });
+  }
+
+  loadResumeData(): void {
+    if (!this.resumeId) return;
+
+    this.isLoading = true;
+    this.error = null;
+
+    this.resumeService.getResumeById(this.resumeId).subscribe({
+      next: (resume) => {
+        this.resume = resume;
+        // Map resume data to component properties
+        this.personalDetails = resume.personalDetails;
+        this.informationSummary = resume.informationSummary;
+        this.languages = resume.languages || [];
+        this.workExperience = resume.workExperience || [];
+        this.workshops = resume.workshops || [];
+        this.education = resume.education || [];
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading resume:', error);
+        this.error = 'Failed to load resume. Please try again.';
+        this.isLoading = false;
+      },
+    });
+  }
+
+  goBackToDashboard(): void {
+    this.router.navigate(['/dashboard']);
+  }
+
+  editResume(): void {
+    if (this.resumeId) {
+      this.router.navigate(['/resume', this.resumeId]);
+    }
+  }
 
   // Placeholder methods for buttons in the preview panel
   showPreviewAlert(): void {
@@ -42,13 +100,20 @@ export class ResumePreviewComponent implements OnInit {
       languages: this.languages,
       workExperience: this.workExperience,
       workshops: this.workshops,
-      education: this.education
+      education: this.education,
     };
     // Simple alert showing the data. A real preview would render HTML.
-    alert("Preview Data:\n" + JSON.stringify(allData, null, 2));
-
+    alert('Preview Data:\n' + JSON.stringify(allData, null, 2));
   }
-    triggerPrintToPdf(): void {
+  triggerPrintToPdf(): void {
+    this.isLoadingPdf = true;
+
+    // Set a timeout to reset the loading state
+    setTimeout(() => {
+      this.isLoadingPdf = false;
+    }, 2000);
+
+    // Trigger browser print dialog
     window.print();
-  }}
-  
+  }
+}
