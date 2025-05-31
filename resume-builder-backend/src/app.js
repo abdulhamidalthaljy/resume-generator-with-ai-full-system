@@ -45,8 +45,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // IMPORTANT: These body parsers MUST come BEFORE your routes that need them (like resumeRoutes)
-app.use(express.json({ limit: '50mb' })); // For parsing application/json
-app.use(express.urlencoded({ extended: true, limit: '50mb' })); // For parsing application/x-www-form-urlencoded
+app.use(express.json({ limit: '100mb' })); // For parsing application/json
+app.use(express.urlencoded({ extended: true, limit: '100mb' })); // For parsing application/x-www-form-urlencoded
 
 // --- Basic Route (for testing) ---
 app.get('/', (req, res) => {
