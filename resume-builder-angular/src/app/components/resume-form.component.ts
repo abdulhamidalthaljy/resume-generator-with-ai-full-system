@@ -13,7 +13,9 @@ import { WorkshopEntryComponent } from './workshop-entry/workshop-entry.componen
 import { EducationEntryComponent } from './education-entry/education-entry.component';
 import { ResumeService } from '../services/resume.service';
 import { AIService } from '../services/ai.service';
+import { TemplateService, ResumeTemplate } from '../services/template.service';
 import { AIInputDialogComponent } from './ai-input-dialog/ai-input-dialog.component';
+import { TemplateSelectorComponent } from './template-selector/template-selector.component';
 
 @Component({
   selector: 'app-resume-form',
@@ -26,6 +28,7 @@ import { AIInputDialogComponent } from './ai-input-dialog/ai-input-dialog.compon
     WorkshopEntryComponent,
     EducationEntryComponent,
     AIInputDialogComponent,
+    TemplateSelectorComponent,
   ],
   templateUrl: './resume-form.component.html',
   styleUrls: ['./resume-form.component.css'], // or .scss
@@ -62,9 +65,14 @@ export class ResumeFormComponent implements OnInit {
 
   showAIDialog = false;
 
+  // Template-related properties
+  selectedTemplate: ResumeTemplate | null = null;
+  showTemplateSelector = false;
+
   constructor(
     private resumeService: ResumeService,
     private aiService: AIService,
+    private templateService: TemplateService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -76,6 +84,9 @@ export class ResumeFormComponent implements OnInit {
         this.loadResume(params['id']);
       }
     });
+
+    // Set default template
+    this.setDefaultTemplate();
 
     // Optionally, emit initial data when component loads
     this.emitDataChanges();
@@ -90,6 +101,7 @@ export class ResumeFormComponent implements OnInit {
       workExperience: [...this.workExperience.map((w) => ({ ...w }))],
       workshops: [...this.workshops.map((w) => ({ ...w }))],
       education: [...this.education.map((e) => ({ ...e }))],
+      templateId: this.selectedTemplate?.id || 'classic',
     };
     this.dataChanged.emit(currentResumeData);
   }
@@ -302,6 +314,7 @@ export class ResumeFormComponent implements OnInit {
       workExperience: this.workExperience,
       workshops: this.workshops,
       education: this.education,
+      templateId: this.selectedTemplate?.id || 'classic',
     };
 
     console.log('Attempting to save resume:', resumeData);
@@ -383,6 +396,16 @@ export class ResumeFormComponent implements OnInit {
         this.education = resume.education || [
           { school: '', degree: '', place: '', date: '' },
         ];
+
+        // Set template based on loaded resume
+        if (resume.templateId) {
+          const templates = this.templateService.getTemplates();
+          this.selectedTemplate =
+            templates.find((t) => t.id === resume.templateId) || templates[0];
+        } else {
+          this.setDefaultTemplate();
+        }
+
         this.emitDataChanges();
       },
       error: (error) => {
@@ -411,5 +434,22 @@ export class ResumeFormComponent implements OnInit {
         },
       });
     }
+  }
+
+  // Template-related methods
+  setDefaultTemplate(): void {
+    const templates = this.templateService.getTemplates();
+    this.selectedTemplate =
+      templates.find((t) => t.id === 'classic') || templates[0];
+  }
+
+  onTemplateSelected(template: ResumeTemplate): void {
+    this.selectedTemplate = template;
+    this.showTemplateSelector = false;
+    this.emitDataChanges();
+  }
+
+  toggleTemplateSelector(): void {
+    this.showTemplateSelector = !this.showTemplateSelector;
   }
 }

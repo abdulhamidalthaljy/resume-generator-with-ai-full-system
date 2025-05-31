@@ -1,8 +1,6 @@
 frontend
 
-cd resume-builder-angular
-
-ng serve --port 4201
+cd resume-builder-angular && ng serve --port 4201
 
 backend
 
