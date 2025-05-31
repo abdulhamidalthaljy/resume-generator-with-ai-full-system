@@ -77,7 +77,7 @@ export class AIService {
 
   async generateInformationSummary(userInput: string) {
     const prompt = `Based on this information: "${userInput}", generate a professional and compelling career summary or personal statement for a resume. 
-    The summary should be 2-3 sentences long and highlight key qualifications, experience, and career goals. Return ONLY the summary text, no additional explanation.`;
+    The summary should be 2-3 sentences long (maximum 150 words) and highlight key qualifications, experience, and career goals. Return ONLY the summary text, no additional explanation.`;
 
     try {
       return await this.makeRequest(prompt);
@@ -88,13 +88,13 @@ export class AIService {
   }
 
   async generateWorkExperience(userInput: string) {
-    const prompt = `Based on this information: "${userInput}", generate professional work experience entries.
-    Return ONLY a valid JSON array with objects containing the following fields (no additional text or explanation):
+    const prompt = `Based on this information: "${userInput}", generate a maximum of 3 professional work experience entries.
+    Keep descriptions concise (maximum 100 words per entry). Return ONLY a valid JSON array with objects containing the following fields (no additional text or explanation):
     [{
       "company": "Company Name",
       "position": "Job Title",
       "date": "Duration of Employment",
-      "description": "Key responsibilities and achievements"
+      "description": "Key responsibilities and achievements (max 100 words)"
     }]`;
 
     try {
@@ -142,4 +142,3 @@ export class AIService {
     }
   }
 }
- 

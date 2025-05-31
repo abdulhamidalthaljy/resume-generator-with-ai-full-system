@@ -40,12 +40,23 @@ exports.getAllResumes = async (req, res, next) => {
 exports.createResume = async (req, res, next) => {
     try {
         const resumeData = req.body;
-        console.log("CONTROLLER: createResume called with data:", resumeData);
+
+        // Log payload size for debugging
+        const payloadSize = JSON.stringify(resumeData).length;
+        console.log("CONTROLLER: createResume called");
+        console.log("Payload size:", {
+            bytes: payloadSize,
+            kb: (payloadSize / 1024).toFixed(2),
+            mb: (payloadSize / 1024 / 1024).toFixed(2)
+        });
+        console.log("Received resume data:", JSON.stringify(resumeData, null, 2));
 
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
-        }        // Create new resume with timestamp
+        }
+
+        // Create new resume with timestamp
         const newResume = {
             ...resumeData,
             _id: new mongoose.Types.ObjectId(),
@@ -54,9 +65,13 @@ exports.createResume = async (req, res, next) => {
             updatedAt: new Date()
         };
 
+        console.log("Created new resume object:", JSON.stringify(newResume, null, 2));
+
         // Add resume to user's resumes array
         user.resumes.push(newResume);
         await user.save();
+
+        console.log("Resume saved successfully with ID:", newResume._id);
 
         res.status(201).json(newResume);
     } catch (error) {
@@ -96,6 +111,7 @@ exports.updateResumeById = async (req, res, next) => {
         const { id } = req.params;
         const resumeData = req.body;
         console.log(`CONTROLLER: updateResumeById called for id: ${id}`);
+        console.log("Update data received:", JSON.stringify(resumeData, null, 2));
 
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -109,6 +125,9 @@ exports.updateResumeById = async (req, res, next) => {
             return res.status(404).json({ message: "Resume not found for update" });
         }
 
+        console.log("Found resume at index:", resumeIndex);
+        console.log("Existing resume data:", JSON.stringify(user.resumes[resumeIndex], null, 2));
+
         // Update resume while preserving _id and createdAt
         user.resumes[resumeIndex] = {
             ...resumeData,
@@ -117,7 +136,11 @@ exports.updateResumeById = async (req, res, next) => {
             updatedAt: new Date()
         };
 
+        console.log("Updated resume data:", JSON.stringify(user.resumes[resumeIndex], null, 2));
+
         await user.save();
+
+        console.log("Resume updated successfully");
 
         res.status(200).json(user.resumes[resumeIndex]);
     } catch (error) {

@@ -4,6 +4,7 @@ import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ResumeFormComponent } from './components/resume-form.component';
 import { ResumePreviewComponent } from './components/resume-preview/resume-preview.component';
+import { ResumeBuilderComponent } from './components/resume-builder/resume-builder.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -15,17 +16,33 @@ export const routes: Routes = [
   },
   {
     path: 'resume/new',
-    component: ResumeFormComponent,
+    component: ResumeBuilderComponent,
     canActivate: [AuthGuard],
   },
   {
     path: 'resume/:id',
-    component: ResumeFormComponent,
+    component: ResumeBuilderComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'resume/:id/edit',
+    component: ResumeBuilderComponent,
     canActivate: [AuthGuard],
   },
   {
     path: 'resume/:id/preview',
     component: ResumePreviewComponent,
+    canActivate: [AuthGuard],
+  },
+  // Keep old routes for backward compatibility
+  {
+    path: 'resume/old/new',
+    component: ResumeFormComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'resume/old/:id',
+    component: ResumeFormComponent,
     canActivate: [AuthGuard],
   },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },

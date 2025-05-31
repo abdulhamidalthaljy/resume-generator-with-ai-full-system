@@ -1,4 +1,12 @@
-import { Component, Input, OnInit, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ResumeService } from '../../services/resume.service';
@@ -33,7 +41,7 @@ import { ExecutiveTemplateComponent } from '../templates/executive-template/exec
   templateUrl: './resume-preview.component.html',
   styleUrls: ['./resume-preview.component.css'],
 })
-export class ResumePreviewComponent implements OnInit {
+export class ResumePreviewComponent implements OnInit, OnChanges {
   // Define Inputs for all data sections (for when used as a child component)
   @Input() personalDetails?: PersonalDetails;
   @Input() informationSummary?: string;
@@ -41,6 +49,11 @@ export class ResumePreviewComponent implements OnInit {
   @Input() workExperience?: WorkExperience[];
   @Input() workshops?: Workshop[];
   @Input() education?: Education[];
+
+  // New inputs for the resume builder component
+  @Input() resumeData?: any;
+  @Input() selectedTemplate?: ResumeTemplate;
+
   // For standalone page usage
   resumeId?: string;
   resume: any = null;
@@ -48,7 +61,6 @@ export class ResumePreviewComponent implements OnInit {
   error: string | null = null;
 
   // Template-related properties
-  selectedTemplate: ResumeTemplate | null = null;
   availableTemplates: ResumeTemplate[] = [];
 
   @ViewChild('resumeContent') resumeContentEl!: ElementRef;
@@ -61,7 +73,24 @@ export class ResumePreviewComponent implements OnInit {
   ) {}
   ngOnInit(): void {
     // Load available templates
-    this.availableTemplates = this.templateService.getTemplates();
+    this.availableTemplates = this.templateService.getTemplates(); // Check if we have resumeData input (used as child component in resume builder)
+    if (this.resumeData) {
+      // Use the provided resumeData and selectedTemplate
+      this.resume = this.resumeData;
+      this.personalDetails = this.resumeData.personalDetails;
+      this.informationSummary = this.resumeData.informationSummary;
+      this.languages = this.resumeData.languages;
+      this.workExperience = this.resumeData.workExperience;
+      this.education = this.resumeData.education;
+      this.workshops = this.resumeData.workshops;
+
+      // Set template or use default
+      if (!this.selectedTemplate) {
+        this.setDefaultTemplate();
+      }
+      this.isLoading = false;
+      return;
+    }
 
     // Check if we're being used as a standalone page (route has ID parameter)
     this.route.params.subscribe((params) => {
@@ -74,6 +103,45 @@ export class ResumePreviewComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Handle changes to resumeData input for live preview updates
+    if (changes['resumeData'] && changes['resumeData'].currentValue) {
+      const resumeData = changes['resumeData'].currentValue;
+
+      // Update all component properties when resumeData changes
+      this.resume = resumeData;
+      this.personalDetails = resumeData.personalDetails;
+      this.informationSummary = resumeData.informationSummary;
+      this.languages = resumeData.languages;
+      this.workExperience = resumeData.workExperience;
+      this.education = resumeData.education;
+      this.workshops = resumeData.workshops;
+
+      console.log(
+        'ResumePreviewComponent: Input data updated via ngOnChanges',
+        {
+          personalDetails: this.personalDetails,
+          informationSummary: this.informationSummary,
+          languages: this.languages,
+          workExperience: this.workExperience,
+          education: this.education,
+          workshops: this.workshops,
+        }
+      );
+    }
+
+    // Handle template changes
+    if (
+      changes['selectedTemplate'] &&
+      changes['selectedTemplate'].currentValue
+    ) {
+      console.log(
+        'ResumePreviewComponent: Template changed to',
+        changes['selectedTemplate'].currentValue
+      );
+    }
   }
 
   loadResumeData(): void {
@@ -140,10 +208,11 @@ export class ResumePreviewComponent implements OnInit {
     // Trigger browser print dialog
     window.print();
   }
-
   // Template-related methods
   setDefaultTemplate(): void {
-    this.selectedTemplate = this.templateService.getDefaultTemplate();
+    if (!this.selectedTemplate) {
+      this.selectedTemplate = this.templateService.getDefaultTemplate();
+    }
   }
 
   setTemplateFromResume(resume: any): void {

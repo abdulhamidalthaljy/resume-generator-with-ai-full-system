@@ -24,7 +24,7 @@ import { Education } from '../../../models/education.model';
             class="mb-4 md:mb-0 print:mb-2"
           >
             <img
-              [src]="personalDetails?.imageUrl"
+              [src]="personalDetails.imageUrl"
               alt="Profile Photo"
               class="w-28 h-28 sm:w-32 sm:h-32 rounded-full mx-auto md:mx-0 object-cover border-4 border-blue-200 shadow-md print:w-24 print:h-24 print:border-2"
             />

@@ -20,7 +20,7 @@ import { Education } from '../../../models/education.model';
       >
         <div *ngIf="personalDetails?.imageUrl" class="mb-4">
           <img
-            [src]="personalDetails?.imageUrl"
+            [src]="personalDetails.imageUrl"
             alt="Profile Photo"
             class="w-20 h-20 rounded-full mx-auto object-cover border-2 border-gray-300"
           />
