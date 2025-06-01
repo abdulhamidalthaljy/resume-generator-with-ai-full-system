@@ -201,7 +201,13 @@ import { Education } from '../../../models/education.model';
       }
 
       .section-title {
-        @apply text-xl font-light text-gray-800 text-center mb-6 uppercase tracking-widest;
+        font-size: 1.25rem;
+        font-weight: 300;
+        color: #1f2937;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
         position: relative;
       }
 
@@ -219,6 +225,14 @@ import { Education } from '../../../models/education.model';
       @media print {
         .minimal-template {
           font-size: 12px;
+        }
+
+        .section-title {
+          color: black !important;
+        }
+
+        .section-title::after {
+          background: black !important;
         }
       }
     `,

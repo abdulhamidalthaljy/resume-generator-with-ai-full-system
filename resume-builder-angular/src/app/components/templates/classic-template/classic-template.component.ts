@@ -259,13 +259,27 @@ import { Education } from '../../../models/education.model';
       }
 
       .section-title {
-        @apply text-lg font-semibold text-blue-600 uppercase tracking-wider pb-1 mb-3 border-b-2 border-blue-200;
-        @apply print:text-sm print:mb-2 print:pb-0.5 print:border-b print:border-gray-300 print:text-black;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #2563eb;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding-bottom: 0.25rem;
+        margin-bottom: 0.75rem;
+        border-bottom: 2px solid #dbeafe;
       }
 
       @media print {
         .classic-template {
           font-size: 12px;
+        }
+
+        .section-title {
+          font-size: 0.875rem !important;
+          margin-bottom: 0.5rem !important;
+          padding-bottom: 0.125rem !important;
+          border-bottom: 1px solid #6b7280 !important;
+          color: black !important;
         }
       }
     `,

@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { ResumeService } from '../../services/resume.service';
 import { TemplateService } from '../../services/template.service';
@@ -32,6 +32,7 @@ import { AIInputDialogComponent } from '../ai-input-dialog/ai-input-dialog.compo
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     ResumePreviewComponent,
     LanguageEntryComponent,
     WorkExperienceEntryComponent,
@@ -285,7 +286,7 @@ export class ResumeBuilderComponent implements OnInit {
       console.error('Auto-save failed:', error);
     }
   }
-  async saveResume() {
+  async saveResume(): Promise<void> {
     if (this.isSaving) return;
 
     this.isSaving = true;
@@ -331,6 +332,34 @@ export class ResumeBuilderComponent implements OnInit {
     } finally {
       this.isSaving = false;
     }
+  }
+
+  async previewAndDownload(): Promise<void> {
+    try {
+      // First, save the resume if there are unsaved changes
+      if (!this.resumeId || this.hasUnsavedChanges()) {
+        await this.saveResume();
+      }
+
+      // If we have a resume ID, open the dedicated preview page
+      if (this.resumeId) {
+        // Open preview page in new tab for better download experience
+        const previewUrl = `${window.location.origin}/resume/${this.resumeId}/preview`;
+        window.open(previewUrl, '_blank');
+      } else {
+        alert('Please save your resume first before downloading.');
+      }
+    } catch (error) {
+      console.error('Preview and download failed:', error);
+      alert('Failed to open preview. Please try saving your resume first.');
+    }
+  }
+
+  private hasUnsavedChanges(): boolean {
+    // Simple check - in a real app you might want more sophisticated change detection
+    return (
+      !this.lastSavedTime || Date.now() - this.lastSavedTime.getTime() > 5000
+    );
   }
   private buildResumeData(): Resume {
     const resumeData = {

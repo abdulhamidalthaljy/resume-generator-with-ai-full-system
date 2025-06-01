@@ -65,6 +65,8 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
 
   @ViewChild('resumeContent') resumeContentEl!: ElementRef;
   isLoadingPdf = false;
+  isEmbedded = false; // New property to track if embedded
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -73,8 +75,9 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
   ) {}
   ngOnInit(): void {
     // Load available templates
-    this.availableTemplates = this.templateService.getTemplates(); // Check if we have resumeData input (used as child component in resume builder)
+    this.availableTemplates = this.templateService.getTemplates();
     if (this.resumeData) {
+      this.isEmbedded = true; // Set to true if resumeData is present
       // Use the provided resumeData and selectedTemplate
       this.resume = this.resumeData;
       this.personalDetails = this.resumeData.personalDetails;
@@ -96,9 +99,16 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
     this.route.params.subscribe((params) => {
       if (params['id']) {
         this.resumeId = params['id'];
+        this.isEmbedded = false; // Standalone page, not embedded
         this.loadResumeData();
       } else {
         // Being used as a child component with @Input properties
+        // This case implies it's embedded if not caught by resumeData check earlier,
+        // but the primary check is via resumeData input.
+        if (!this.resumeData) {
+          // If resumeData wasn't provided, it might be an uninitialized embed
+          this.isEmbedded = true;
+        }
         this.setDefaultTemplate();
         this.isLoading = false;
       }
@@ -108,6 +118,7 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     // Handle changes to resumeData input for live preview updates
     if (changes['resumeData'] && changes['resumeData'].currentValue) {
+      this.isEmbedded = true; // Set to true if resumeData is present
       const resumeData = changes['resumeData'].currentValue;
 
       // Update all component properties when resumeData changes
@@ -200,13 +211,32 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
   triggerPrintToPdf(): void {
     this.isLoadingPdf = true;
 
-    // Set a timeout to reset the loading state
+    // Add printing class to body for enhanced print styles
+    document.body.classList.add('printing');
+
+    // Make sure the content is visible and properly sized
+    if (this.resumeContentEl) {
+      // Set inline styles to ensure content is visible during print
+      const contentElement = this.resumeContentEl.nativeElement;
+      contentElement.style.display = 'block';
+      contentElement.style.visibility = 'visible';
+      contentElement.style.position = 'relative';
+      contentElement.style.overflow = 'visible';
+      contentElement.style.height = 'auto';
+      contentElement.style.minHeight = 'auto';
+      contentElement.style.maxHeight = 'none';
+    }
+
+    // Set a timeout to reset the loading state and remove printing class
     setTimeout(() => {
       this.isLoadingPdf = false;
+      document.body.classList.remove('printing');
     }, 2000);
 
-    // Trigger browser print dialog
-    window.print();
+    // Longer delay to ensure styles are properly applied before print dialog
+    setTimeout(() => {
+      window.print();
+    }, 500);
   }
   // Template-related methods
   setDefaultTemplate(): void {
