@@ -45,25 +45,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // IMPORTANT: These body parsers MUST come BEFORE your routes that need them (like resumeRoutes)
-app.use(express.json({
-  limit: '100mb',
-  verify: (req, res, buf, encoding) => {
-    console.log('Request body size:', buf.length, 'bytes');
-  }
-})); // For parsing application/json
+app.use(express.json({ limit: '100mb' })); // For parsing application/json
 app.use(express.urlencoded({ extended: true, limit: '100mb' })); // For parsing application/x-www-form-urlencoded
-
-// Add middleware to handle payload too large errors
-app.use((error, req, res, next) => {
-  if (error.type === 'entity.too.large') {
-    console.error('Payload too large error:', error.message);
-    return res.status(413).json({
-      error: 'Payload too large',
-      message: 'The request payload is too large. Please reduce the size of uploaded images.'
-    });
-  }
-  next(error);
-});
 
 // --- Basic Route (for testing) ---
 app.get('/', (req, res) => {

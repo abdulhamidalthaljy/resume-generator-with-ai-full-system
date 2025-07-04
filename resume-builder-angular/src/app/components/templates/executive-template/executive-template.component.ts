@@ -256,25 +256,11 @@ import { Education } from '../../../models/education.model';
       }
 
       .sidebar-section-title {
-        color: white;
-        font-weight: 700;
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid #059669;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-size: 0.875rem;
+        @apply text-white font-bold mb-3 pb-2 border-b border-emerald-600 uppercase tracking-wide text-sm;
       }
 
       .main-section-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #047857;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #d1fae5;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        @apply text-xl font-bold text-emerald-700 mb-4 pb-2 border-b-2 border-emerald-200 uppercase tracking-wide;
       }
 
       @media print {
@@ -286,14 +272,6 @@ import { Education } from '../../../models/education.model';
           background-color: #047857 !important;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
-        }
-
-        .sidebar-section-title {
-          color: white !important;
-        }
-
-        .main-section-title {
-          color: black !important;
         }
       }
     `,

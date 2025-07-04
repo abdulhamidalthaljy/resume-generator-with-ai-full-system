@@ -12,6 +12,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ResumeService } from '../../services/resume.service';
 import { TemplateService } from '../../services/template.service';
 import { AIService } from '../../services/ai.service';
+import { SocketService } from '../../services/socket.service';
 import { Resume } from '../../models/resume.model';
 import { PersonalDetails } from '../../models/personal-details.model';
 import { WorkExperience } from '../../models/work-experience.model';
@@ -32,7 +33,6 @@ import { AIInputDialogComponent } from '../ai-input-dialog/ai-input-dialog.compo
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule,
     ResumePreviewComponent,
     LanguageEntryComponent,
     WorkExperienceEntryComponent,
@@ -68,25 +68,32 @@ export class ResumeBuilderComponent implements OnInit {
 
   // AI Integration
   showAIDialog = false;
+
   constructor(
     private resumeService: ResumeService,
     private templateService: TemplateService,
     private aiService: AIService,
+    private socketService: SocketService,
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
+    console.log('ResumeBuilderComponent ngOnInit called');
     this.templates = this.templateService.getTemplates();
+    console.log('Templates loaded:', this.templates);
 
     // Check if we're editing an existing resume
     this.route.params.subscribe((params) => {
+      console.log('Route params:', params);
       if (params['id']) {
         this.resumeId = params['id'];
+        console.log('Resume ID found:', this.resumeId);
         this.loadExistingResume();
       } else {
         // New resume - start with template selection
+        console.log('New resume - starting with template selection');
         this.currentStep = 'template';
       }
     });
@@ -94,8 +101,14 @@ export class ResumeBuilderComponent implements OnInit {
 
   // Template Selection Methods
   onTemplateSelected(template: any) {
+    const oldTemplate = this.selectedTemplate?.name;
     this.selectedTemplate = template;
     this.currentStep = 'form';
+
+    // Emit socket event for template selection
+    if (oldTemplate && oldTemplate !== template.name) {
+      this.socketService.emitTemplateChanged(oldTemplate, template.name);
+    }
   }
 
   goBackToTemplateSelection() {
@@ -105,6 +118,14 @@ export class ResumeBuilderComponent implements OnInit {
   onFieldChange() {
     // Trigger immediate change detection for live preview
     this.cdr.detectChanges();
+
+    // Emit editing event to show user activity
+    if (this.resumeId && this.selectedTemplate) {
+      this.socketService.emitResumeEditing(
+        this.resumeId,
+        this.selectedTemplate.name
+      );
+    }
 
     // Auto-save after user stops typing (debounced)
     this.debouncedSave();
@@ -286,32 +307,39 @@ export class ResumeBuilderComponent implements OnInit {
       console.error('Auto-save failed:', error);
     }
   }
-  async saveResume(): Promise<void> {
+
+  async saveResume() {
     if (this.isSaving) return;
 
     this.isSaving = true;
     try {
       const resumeData = this.buildResumeData();
-
-      // Log payload size for debugging
-      const payloadSize = JSON.stringify(resumeData).length;
-      console.log('Resume payload size:', {
-        bytes: payloadSize,
-        kb: (payloadSize / 1024).toFixed(2),
-        mb: (payloadSize / 1024 / 1024).toFixed(2),
-      });
+      const isNewResume = !this.resumeId;
 
       if (this.resumeId) {
         // Update existing resume
         await this.resumeService
           .updateResume(this.resumeId, resumeData)
           .toPromise();
+
+        // Emit socket event for resume update
+        this.socketService.emitResumeUpdated(
+          this.personalDetails.name + "'s Resume" || 'Resume',
+          this.selectedTemplate?.name || 'Default'
+        );
       } else {
         // Create new resume
         const response = await this.resumeService
           .createResume(resumeData)
           .toPromise();
         this.resumeId = response._id;
+
+        // Emit socket event for resume creation
+        this.socketService.emitResumeCreated(
+          this.personalDetails.name + "'s Resume" || 'New Resume',
+          this.selectedTemplate?.name || 'Default'
+        );
+
         // Update URL to reflect the new resume ID
         this.router.navigate(['/resume', this.resumeId], { replaceUrl: true });
       }
@@ -320,49 +348,13 @@ export class ResumeBuilderComponent implements OnInit {
       alert('Resume saved successfully!');
     } catch (error) {
       console.error('Save failed:', error);
-
-      // Provide more specific error messages
-      if (error instanceof Error && error.message.includes('413')) {
-        alert(
-          'Resume data is too large. Please reduce the size of uploaded images or content.'
-        );
-      } else {
-        alert('Failed to save resume. Please try again.');
-      }
+      alert('Failed to save resume. Please try again.');
     } finally {
       this.isSaving = false;
     }
   }
-
-  async previewAndDownload(): Promise<void> {
-    try {
-      // First, save the resume if there are unsaved changes
-      if (!this.resumeId || this.hasUnsavedChanges()) {
-        await this.saveResume();
-      }
-
-      // If we have a resume ID, open the dedicated preview page
-      if (this.resumeId) {
-        // Open preview page in new tab for better download experience
-        const previewUrl = `${window.location.origin}/resume/${this.resumeId}/preview`;
-        window.open(previewUrl, '_blank');
-      } else {
-        alert('Please save your resume first before downloading.');
-      }
-    } catch (error) {
-      console.error('Preview and download failed:', error);
-      alert('Failed to open preview. Please try saving your resume first.');
-    }
-  }
-
-  private hasUnsavedChanges(): boolean {
-    // Simple check - in a real app you might want more sophisticated change detection
-    return (
-      !this.lastSavedTime || Date.now() - this.lastSavedTime.getTime() > 5000
-    );
-  }
   private buildResumeData(): Resume {
-    const resumeData = {
+    return {
       personalDetails: this.personalDetails,
       informationSummary: this.informationSummary,
       languages: this.languages.filter((lang) => lang.name?.trim()),
@@ -371,33 +363,21 @@ export class ResumeBuilderComponent implements OnInit {
       workshops: this.workshops.filter((ws) => ws.title?.trim()),
       templateId: this.selectedTemplate?.id || 'classic',
     };
-
-    console.log('Building resume data:', resumeData);
-    console.log('Current component state:', {
-      personalDetails: this.personalDetails,
-      informationSummary: this.informationSummary,
-      languages: this.languages,
-      workExperience: this.workExperience,
-      education: this.education,
-      workshops: this.workshops,
-      selectedTemplate: this.selectedTemplate,
-    });
-
-    return resumeData;
   }
+
   private async loadExistingResume() {
+    if (!this.resumeId) {
+      console.error('No resume ID provided');
+      this.router.navigate(['/dashboard']);
+      return;
+    }
+
     this.isLoading = true;
     try {
-      console.log('Loading existing resume with ID:', this.resumeId);
-
-      if (!this.resumeId) {
-        throw new Error('No resume ID provided');
-      }
-
+      console.log('Loading resume with ID:', this.resumeId);
       const resume = await this.resumeService
         .getResumeById(this.resumeId)
         .toPromise();
-
       console.log('Loaded resume data:', resume);
 
       // Load resume data
@@ -419,6 +399,12 @@ export class ResumeBuilderComponent implements OnInit {
       this.selectedTemplate =
         this.templates.find((t) => t.id === templateId) || this.templates[0];
 
+      // Skip template selection step
+      this.currentStep = 'form';
+
+      // Trigger change detection to update the UI
+      this.cdr.detectChanges();
+
       console.log('Resume loaded successfully:', {
         personalDetails: this.personalDetails,
         informationSummary: this.informationSummary,
@@ -428,9 +414,6 @@ export class ResumeBuilderComponent implements OnInit {
         workshops: this.workshops,
         selectedTemplate: this.selectedTemplate,
       });
-
-      // Skip template selection step
-      this.currentStep = 'form';
     } catch (error) {
       console.error('Failed to load resume:', error);
       alert('Failed to load resume. Please try again.');

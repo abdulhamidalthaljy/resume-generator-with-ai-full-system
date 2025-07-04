@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { ResumeService } from '../../services/resume.service';
 import { CommonModule } from '@angular/common';
+import { ActivityFeedComponent } from '../activity-feed/activity-feed.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, AsyncPipe],
+  imports: [CommonModule, AsyncPipe, ActivityFeedComponent],
   template: `
     <div class="dashboard-container">
       <header class="header">
@@ -22,109 +23,127 @@ import { CommonModule } from '@angular/common';
       </header>
 
       <main class="main-content">
-        <div class="dashboard-content">
-          <div class="content-header">
-            <h2>Your Resumes</h2>
-            <button (click)="createNewResume()" class="btn btn-primary">
-              <span>+ Create New Resume</span>
-            </button>
-          </div>
-
-          <div class="resumes-grid" *ngIf="resumes.length > 0; else noResumes">
-            <div
-              *ngFor="let resume of resumes; let i = index"
-              class="resume-card"
-            >
-              <div class="resume-header">
-                <h3>{{ getResumeTitle(resume) }}</h3>
-                <div class="resume-meta">
-                  <span class="date"
-                    >Created: {{ formatDate(resume.createdAt) }}</span
-                  >
-                  <span
-                    class="date"
-                    *ngIf="
-                      resume.updatedAt && resume.updatedAt !== resume.createdAt
-                    "
-                  >
-                    Updated: {{ formatDate(resume.updatedAt) }}
-                  </span>
-                </div>
-              </div>
-              <div class="resume-preview">
-                <p class="summary" *ngIf="resume.informationSummary">
-                  {{ resume.informationSummary | slice : 0 : 150
-                  }}{{ resume.informationSummary.length > 150 ? '...' : '' }}
-                </p>
-                <p
-                  class="summary"
-                  *ngIf="
-                    !resume.informationSummary && resume.personalDetails?.name
-                  "
-                >
-                  Resume for {{ resume.personalDetails.name }}
-                </p>
-                <div class="tags" *ngIf="resume.languages?.length">
-                  <span
-                    class="tag"
-                    *ngFor="let lang of resume.languages.slice(0, 3)"
-                  >
-                    {{ lang.name }}
-                  </span>
-                  <span class="tag more" *ngIf="resume.languages.length > 3">
-                    +{{ resume.languages.length - 3 }} more
-                  </span>
-                </div>
-              </div>
-
-              <div class="resume-actions">
-                <button
-                  (click)="editResume(getResumeId(resume))"
-                  class="btn btn-secondary"
-                  title="Edit Resume"
-                >
-                  ✏️ Edit
-                </button>
-                <button
-                  (click)="previewResume(resume)"
-                  class="btn btn-outline"
-                  title="Preview Resume"
-                >
-                  👁️ Preview
-                </button>
-                <button
-                  (click)="duplicateResume(resume)"
-                  class="btn btn-outline"
-                  title="Duplicate Resume"
-                >
-                  📄 Duplicate
-                </button>
-                <button
-                  (click)="deleteResume(getResumeId(resume), i)"
-                  class="btn btn-danger"
-                  title="Delete Resume"
-                >
-                  🗑️ Delete
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <ng-template #noResumes>
-            <div class="empty-state">
-              <div class="empty-icon">📄</div>
-              <h3>No resumes yet</h3>
-              <p>Create your first professional resume to get started</p>
+        <div class="dashboard-layout">
+          <!-- Left Column - Resumes -->
+          <div class="resumes-section">
+            <div class="content-header">
+              <h2>Your Resumes</h2>
               <button (click)="createNewResume()" class="btn btn-primary">
-                Create Your First Resume
+                <span>+ Create New Resume</span>
               </button>
             </div>
-          </ng-template>
 
-          <!-- Loading state -->
-          <div class="loading" *ngIf="isLoading">
-            <div class="spinner"></div>
-            <p>Loading your resumes...</p>
+            <div
+              class="resumes-grid"
+              *ngIf="resumes.length > 0; else noResumes"
+            >
+              <div
+                *ngFor="let resume of resumes; let i = index"
+                class="resume-card"
+              >
+                <div class="resume-header">
+                  <h3>{{ getResumeTitle(resume) }}</h3>
+                  <div class="resume-meta">
+                    <span class="date"
+                      >Created: {{ formatDate(resume.createdAt) }}</span
+                    >
+                    <span
+                      class="date"
+                      *ngIf="
+                        resume.updatedAt &&
+                        resume.updatedAt !== resume.createdAt
+                      "
+                    >
+                      Updated: {{ formatDate(resume.updatedAt) }}
+                    </span>
+                  </div>
+                </div>
+                <div class="resume-preview">
+                  <p class="summary" *ngIf="resume.informationSummary">
+                    {{ resume.informationSummary | slice : 0 : 150
+                    }}{{ resume.informationSummary.length > 150 ? '...' : '' }}
+                  </p>
+                  <p
+                    class="summary"
+                    *ngIf="
+                      !resume.informationSummary && resume.personalDetails?.name
+                    "
+                  >
+                    Resume for {{ resume.personalDetails.name }}
+                  </p>
+                  <div class="tags" *ngIf="resume.languages?.length">
+                    <span
+                      class="tag"
+                      *ngFor="let lang of resume.languages.slice(0, 3)"
+                    >
+                      {{ lang.name }}
+                    </span>
+                    <span class="tag more" *ngIf="resume.languages.length > 3">
+                      +{{ resume.languages.length - 3 }} more
+                    </span>
+                  </div>
+                </div>
+
+                <div class="resume-actions">
+                  <button
+                    (click)="editResume(getResumeId(resume))"
+                    class="btn btn-secondary"
+                    title="Edit Resume"
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    (click)="previewResume(resume)"
+                    class="btn btn-outline"
+                    title="Preview Resume"
+                  >
+                    👁️ Preview
+                  </button>
+                  <button
+                    (click)="duplicateResume(resume)"
+                    class="btn btn-outline"
+                    title="Duplicate Resume"
+                  >
+                    📄 Duplicate
+                  </button>
+                  <button
+                    (click)="deleteResume(getResumeId(resume), i)"
+                    class="btn btn-danger"
+                    title="Delete Resume"
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <ng-template #noResumes>
+              <div class="empty-state">
+                <div class="empty-icon">📄</div>
+                <h3>No resumes yet</h3>
+                <p>Create your first professional resume to get started</p>
+                <button (click)="createNewResume()" class="btn btn-primary">
+                  Create Your First Resume
+                </button>
+              </div>
+            </ng-template>
+
+            <!-- Loading state -->
+            <div class="loading" *ngIf="isLoading">
+              <div class="spinner"></div>
+              <p>Loading your resumes...</p>
+            </div>
+          </div>
+
+          <!-- Right Column - Activity Feed -->
+          <div class="activity-section">
+            <div class="activity-header">
+              <h2>Live Activity</h2>
+              <span class="activity-subtitle"
+                >Real-time updates from all users</span
+              >
+            </div>
+            <app-activity-feed></app-activity-feed>
           </div>
         </div>
       </main>
@@ -180,8 +199,57 @@ import { CommonModule } from '@angular/common';
 
       .main-content {
         padding: 2rem;
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
+      }
+
+      .dashboard-layout {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+        min-height: 600px;
+      }
+
+      .resumes-section {
+        flex: 1;
+      }
+
+      .activity-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        height: fit-content;
+        position: sticky;
+        top: 2rem;
+      }
+
+      .activity-header {
+        margin-bottom: 1.5rem;
+      }
+
+      .activity-header h2 {
+        color: #1f2937;
+        font-size: 1.4rem;
+        margin: 0 0 0.5rem 0;
+      }
+
+      .activity-subtitle {
+        color: #6b7280;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 1024px) {
+        .dashboard-layout {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+
+        .activity-section {
+          position: static;
+          order: -1;
+        }
       }
 
       .content-header {

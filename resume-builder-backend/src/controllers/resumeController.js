@@ -40,16 +40,7 @@ exports.getAllResumes = async (req, res, next) => {
 exports.createResume = async (req, res, next) => {
     try {
         const resumeData = req.body;
-
-        // Log payload size for debugging
-        const payloadSize = JSON.stringify(resumeData).length;
-        console.log("CONTROLLER: createResume called");
-        console.log("Payload size:", {
-            bytes: payloadSize,
-            kb: (payloadSize / 1024).toFixed(2),
-            mb: (payloadSize / 1024 / 1024).toFixed(2)
-        });
-        console.log("Received resume data:", JSON.stringify(resumeData, null, 2));
+        console.log("CONTROLLER: createResume called with data:", resumeData);
 
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -65,13 +56,27 @@ exports.createResume = async (req, res, next) => {
             updatedAt: new Date()
         };
 
-        console.log("Created new resume object:", JSON.stringify(newResume, null, 2));
-
         // Add resume to user's resumes array
         user.resumes.push(newResume);
         await user.save();
 
-        console.log("Resume saved successfully with ID:", newResume._id);
+        // Emit Socket.io event for resume creation
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('resume:activity', {
+                type: 'created',
+                user: user.name || 'Someone',
+                resumeTitle: newResume.title,
+                templateName: resumeData.templateId || 'Default',
+                timestamp: new Date()
+            });
+
+            io.emit('notification', {
+                type: 'success',
+                message: `${user.name || 'Someone'} created a new resume: ${newResume.title}`,
+                timestamp: new Date()
+            });
+        }
 
         res.status(201).json(newResume);
     } catch (error) {
@@ -111,7 +116,6 @@ exports.updateResumeById = async (req, res, next) => {
         const { id } = req.params;
         const resumeData = req.body;
         console.log(`CONTROLLER: updateResumeById called for id: ${id}`);
-        console.log("Update data received:", JSON.stringify(resumeData, null, 2));
 
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -125,9 +129,6 @@ exports.updateResumeById = async (req, res, next) => {
             return res.status(404).json({ message: "Resume not found for update" });
         }
 
-        console.log("Found resume at index:", resumeIndex);
-        console.log("Existing resume data:", JSON.stringify(user.resumes[resumeIndex], null, 2));
-
         // Update resume while preserving _id and createdAt
         user.resumes[resumeIndex] = {
             ...resumeData,
@@ -136,11 +137,19 @@ exports.updateResumeById = async (req, res, next) => {
             updatedAt: new Date()
         };
 
-        console.log("Updated resume data:", JSON.stringify(user.resumes[resumeIndex], null, 2));
-
         await user.save();
 
-        console.log("Resume updated successfully");
+        // Emit Socket.io event for resume update
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('resume:activity', {
+                type: 'updated',
+                user: user.name || 'Someone',
+                resumeTitle: user.resumes[resumeIndex].title || 'Resume',
+                templateName: resumeData.templateId || 'Default',
+                timestamp: new Date()
+            });
+        }
 
         res.status(200).json(user.resumes[resumeIndex]);
     } catch (error) {
@@ -167,9 +176,28 @@ exports.deleteResumeById = async (req, res, next) => {
             return res.status(404).json({ message: "Resume not found for deletion" });
         }
 
+        const deletedResume = user.resumes[resumeIndex];
+
         // Remove resume from array
         user.resumes.splice(resumeIndex, 1);
         await user.save();
+
+        // Emit Socket.io event for resume deletion
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('resume:activity', {
+                type: 'deleted',
+                user: user.name || 'Someone',
+                resumeTitle: deletedResume.title || 'Resume',
+                timestamp: new Date()
+            });
+
+            io.emit('notification', {
+                type: 'info',
+                message: `${user.name || 'Someone'} deleted a resume: ${deletedResume.title}`,
+                timestamp: new Date()
+            });
+        }
 
         res.status(200).json({ message: "Resume deleted successfully" });
     } catch (error) {
