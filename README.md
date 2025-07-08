@@ -132,7 +132,7 @@ export const environment = {
 
 ```bash
 git clone <https://github.com/abdulhamidalthaljy/resume-generator-with-ai-full-system>
-cd my_project
+cd resume-generator-with-ai-full-system
 ```
 
 ### 2. Install Backend Dependencies
