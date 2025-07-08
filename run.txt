@@ -1,7 +1,0 @@
-frontend
-
-cd resume-builder-angular && ng serve --port 4201
-
-backend
-
-cd "c:\Users\admin\Desktop\JKU\SEMSTER4\web development\my_project\resume-builder-backend" && npm start 
