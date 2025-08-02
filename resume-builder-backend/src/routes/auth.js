@@ -1,6 +1,12 @@
 const express = require('express');
 const passport = require('passport');
+const { generateToken } = require('../utils/jwt');
 const router = express.Router();
+
+// Get client URL from environment
+const getClientUrl = () => {
+    return process.env.CLIENT_URL || 'http://localhost:4201';
+};
 
 // Google OAuth routes
 router.get('/google',
@@ -17,12 +23,22 @@ router.get('/google/callback',
         next();
     },
     passport.authenticate('google', {
-        failureRedirect: 'http://localhost:4201/login',
+        failureRedirect: `${getClientUrl()}/login?error=auth_failed`,
         failureMessage: true
     }),
     (req, res) => {
-        console.log('Authentication successful, user:', req.user);
-        res.redirect('http://localhost:4201/dashboard');
+        try {
+            console.log('Authentication successful, user:', req.user);
+
+            // Generate JWT token
+            const token = generateToken(req.user);
+
+            // Redirect to frontend with token as query parameter
+            res.redirect(`${getClientUrl()}/dashboard?token=${token}`);
+        } catch (error) {
+            console.error('Error during auth callback:', error);
+            res.redirect(`${getClientUrl()}/login?error=server_error`);
+        }
     }
 );
 
@@ -43,7 +59,7 @@ router.get('/logout', (req, res, next) => {
             console.error('Logout error:', err);
             return next(err);
         }
-        res.redirect('http://localhost:4201/login');
+        res.redirect(`${getClientUrl()}/login?logout=success`);
     });
 });
 

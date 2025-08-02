@@ -29,7 +29,6 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/resume-bu
     useNewUrlParser: true,
     useUnifiedTopology: true,
     ssl: true,
-    sslValidate: false,
     tlsAllowInvalidCertificates: true,
     retryWrites: true,
     w: 'majority'
@@ -38,8 +37,25 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/resume-bu
     .catch(err => console.error('MongoDB connection error:', err));
 
 // Middleware
+const allowedOrigins = [
+    process.env.CLIENT_URL || 'http://localhost:4201',
+    'http://localhost:4201',
+    'http://localhost:4200',
+    'https://resume-generator-with-ai-full-syste.vercel.app'
+];
+
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:4201',
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.log('CORS blocked origin:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -52,11 +68,10 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false, // set to true in production with HTTPS
+        secure: process.env.NODE_ENV === 'production', // HTTPS in production
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        sameSite: 'lax'
-        // Removed domain restriction for local development
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // 'none' for cross-site cookies in production
     }
 }));
 
@@ -64,16 +79,50 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Debug middleware
-app.use((req, res, next) => {
-    console.log('Session:', req.session);
-    console.log('User:', req.user);
-    next();
+// Routes
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Resume Builder API is running!',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development',
+        version: '1.0.0'
+    });
 });
 
-// Routes
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development',
+        database: 'connected' // You could add actual DB health check here
+    });
+});
+
+app.use('/auth', authRoutes); // Direct auth routes (legacy support)
 app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Error:', err);
+    res.status(err.status || 500).json({
+        error: {
+            message: err.message || 'Internal Server Error',
+            ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+        }
+    });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+    res.status(404).json({
+        error: 'Route not found',
+        path: req.originalUrl,
+        method: req.method
+    });
+});
 
 // Socket.io connection handling
 let connectedUsers = new Map(); // Track connected users
