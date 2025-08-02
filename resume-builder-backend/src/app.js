@@ -5,7 +5,7 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 const passport = require('./config/passport'); // Load passport configuration
 const resumeRoutes = require('./routes/resumeRoutes');
-const authRoutes = require('./routes/authRoutes'); // Import auth routes
+const authRoutes = require('./routes/auth'); // Import auth routes with JWT support
 const pdfRoutes = require('./routes/pdfRoutes'); // Import PDF routes
 const ensureAuthenticated = require('./middleware/ensureAuth');
 
