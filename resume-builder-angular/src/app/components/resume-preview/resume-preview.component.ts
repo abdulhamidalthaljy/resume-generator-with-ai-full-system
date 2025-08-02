@@ -120,6 +120,18 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
       this.workExperience = resumeData.workExperience;
       this.education = resumeData.education;
       this.workshops = resumeData.workshops;
+
+      console.log(
+        'ResumePreviewComponent: Input data updated via ngOnChanges',
+        {
+          personalDetails: this.personalDetails,
+          informationSummary: this.informationSummary,
+          languages: this.languages,
+          workExperience: this.workExperience,
+          education: this.education,
+          workshops: this.workshops,
+        }
+      );
     }
 
     // Handle template changes

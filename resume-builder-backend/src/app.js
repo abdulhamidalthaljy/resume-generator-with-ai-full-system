@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const passport = require('./config/passport'); // Load passport configuration
 const resumeRoutes = require('./routes/resumeRoutes');
 const authRoutes = require('./routes/authRoutes'); // Import auth routes
-// const pdfRoutes = require('./routes/pdfRoutes'); // Temporarily disabled - PDF routes
+const pdfRoutes = require('./routes/pdfRoutes'); // Import PDF routes
 const ensureAuthenticated = require('./middleware/ensureAuth');
 
 const app = express();
@@ -22,12 +22,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/resume-bu
 // --- Middleware ---
 // Configure CORS for our Angular frontend
 const corsOptions = {
-  origin: [
-    'http://localhost:4201', // Angular dev server port
-    'http://localhost:4200', // Alternative Angular dev server port
-    'https://resume-generator-with-ai-full-syste.vercel.app', // Production frontend URL
-    process.env.CLIENT_URL // Environment variable for frontend URL
-  ].filter(Boolean), // Remove any undefined values
+  origin: 'http://localhost:4201', // Angular dev server port
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Allow cookies if you need them
@@ -56,28 +51,14 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' })); // For parsing 
 
 // --- Basic Route (for testing) ---
 app.get('/', (req, res) => {
-  res.json({
-    message: 'Resume Builder API is alive!',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
-// Health check route
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
-  });
+  res.send('Resume Builder API is alive!');
 });
 
 // --- API Routes ---
 // This should come AFTER the body parsers
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/auth', authRoutes);
-// app.use('/api/pdf', pdfRoutes); // Temporarily disabled - PDF routes
+app.use('/api/pdf', pdfRoutes); // Add PDF routes
 
 // --- Protected Route Example ---
 // app.get('/api/protected', ensureAuthenticated, (req, res) => {
@@ -88,7 +69,8 @@ app.use('/api/auth', authRoutes);
 // This should be defined AFTER all your routes
 app.use((err, req, res, next) => {
   console.error("GLOBAL ERROR HANDLER:", err.message);
-  res.status(err.status || 500).json({
+  // console.error(err.stack); // Keep this for detailed debugging
+  res.status(err.status || 500).send({
     error: {
       message: err.message || 'Something went wrong!',
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),

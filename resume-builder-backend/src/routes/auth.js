@@ -17,12 +17,12 @@ router.get('/google/callback',
         next();
     },
     passport.authenticate('google', {
-        failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:4201'}/login`,
+        failureRedirect: 'http://localhost:4201/login',
         failureMessage: true
     }),
     (req, res) => {
         console.log('Authentication successful, user:', req.user);
-        res.redirect(`${process.env.CLIENT_URL || 'http://localhost:4201'}/dashboard`);
+        res.redirect('http://localhost:4201/dashboard');
     }
 );
 
@@ -43,7 +43,7 @@ router.get('/logout', (req, res, next) => {
             console.error('Logout error:', err);
             return next(err);
         }
-        res.redirect(`${process.env.CLIENT_URL || 'http://localhost:4201'}/login`);
+        res.redirect('http://localhost:4201/login');
     });
 });
 

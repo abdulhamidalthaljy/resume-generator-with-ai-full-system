@@ -2,13 +2,6 @@
 
 A modern, full-stack web application for creating professional resumes with real-time collaboration, AI-powered content generation, and multiple professional templates.
 
-## 🌐 Live Demo
-
-- **Frontend**: [https://resume-generator-with-ai-full-syste.vercel.app](https://resume-generator-with-ai-full-syste.vercel.app)
-- **Backend API**: [https://resume-generator-with-ai-full-system-production.up.railway.app](https://resume-generator-with-ai-full-system-production.up.railway.app)
-
-> **Note**: PDF generation is temporarily disabled in production due to Puppeteer compatibility issues with Railway's containerized environment. The core resume building, saving, and AI features are fully functional.
-
 ## 🚀 Features
 
 - **Multi-Template System**: 4 professional resume templates (Classic, Modern, Minimal, Executive)
