@@ -13,6 +13,7 @@ function ensureAuthenticated(req, res, next) {
             // Verify JWT token
             const decoded = verifyToken(token);
             req.user = {
+                id: decoded.id,
                 _id: decoded.id,
                 name: decoded.name,
                 email: decoded.email,
