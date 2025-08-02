@@ -1,65 +1,77 @@
 # Resume Builder - Deployment Guide
 
-## 🚀 Deployment Steps
+## ✅ Frontend Deployed Successfully!
 
-### Frontend (Vercel)
+**Vercel URL:** https://resume-generator-rho-eight.vercel.app
 
-1. Push your code to GitHub
-2. Connect your GitHub repo to Vercel
-3. Set build command: `npm run build:prod`
-4. Set output directory: `dist/resume-builder-angular`
-5. Update `environment.prod.ts` with your Railway backend URL
+## 🚀 Next Step: Deploy Backend to Railway
 
-### Backend (Railway)
+### Backend (Railway) - Step by Step
 
-1. Connect your GitHub repo to Railway
-2. Railway will auto-detect Node.js and use `npm start`
-3. Set the following environment variables in Railway:
+1. **Connect to Railway:**
 
-#### Required Environment Variables for Railway:
+   - Go to [railway.app](https://railway.app)
+   - Sign up/Login with GitHub
+   - Click "New Project" → "Deploy from GitHub repo"
+   - Select your `resume-generator-with-ai-full-system` repository
+   - Choose "resume-builder-backend" as the root directory
 
-```
-NODE_ENV=production
-PORT=8080
-MONGODB_URI=your_mongodb_connection_string
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-SESSION_SECRET=your_random_secret_key
-GEMINI_API_KEY=your_gemini_api_key
-CLIENT_URL=https://your-vercel-app-url.vercel.app
-API_URL=https://your-railway-app.railway.app
-```
+2. **Railway will auto-detect Node.js and use `npm start`**
+
+3. **Set Environment Variables in Railway Dashboard:**
+   ```
+   NODE_ENV=production
+   PORT=8080
+   MONGODB_URI=your_mongodb_connection_string
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   SESSION_SECRET=your_random_secret_key_here
+   GEMINI_API_KEY=AIzaSyB4LMblYJFpHsq-oH5Do0KJenXkVL0UMqI
+   CLIENT_URL=https://resume-generator-rho-eight.vercel.app
+   ```
+
+### MongoDB Setup (Required First!)
+
+1. **Create MongoDB Atlas Account:** [https://www.mongodb.com/atlas](https://www.mongodb.com/atlas)
+2. **Create a new cluster** (free tier is fine)
+3. **Create database user:**
+   - Username: `resumebuilder`
+   - Password: `[generate-strong-password]`
+4. **Network Access:** Add `0.0.0.0/0` (allow all IPs)
+5. **Get connection string:**
+   ```
+   mongodb+srv://resumebuilder:your_password@cluster0.xxxxx.mongodb.net/resume_builder?retryWrites=true&w=majority
+   ```
 
 ### Google OAuth Setup
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create/Select your project
-3. Enable Google+ API
-4. Create OAuth 2.0 credentials
-5. Add authorized redirect URIs:
-   - Development: `http://localhost:5050/api/auth/google/callback`
-   - Production: `https://your-railway-app.railway.app/api/auth/google/callback`
-6. Add authorized origins:
-   - Development: `http://localhost:4201`
-   - Production: `https://your-vercel-app-url.vercel.app`
+1. **Go to [Google Cloud Console](https://console.cloud.google.com/)**
+2. **Create new project** or select existing
+3. **Enable APIs:** Google+ API or Google People API
+4. **Create OAuth 2.0 Credentials:**
+   - Application type: Web application
+   - Name: Resume Builder
+5. **Add Authorized Origins:**
+   ```
+   https://resume-generator-rho-eight.vercel.app
+   https://your-railway-app-url.railway.app
+   ```
+6. **Add Authorized Redirect URIs:**
+   ```
+   https://your-railway-app-url.railway.app/api/auth/google/callback
+   ```
 
-### MongoDB Setup
+## 📋 After Railway Deployment
 
-1. Create a MongoDB Atlas account
-2. Create a new cluster
-3. Create a database user
-4. Whitelist Railway's IP addresses (or use 0.0.0.0/0 for all IPs)
-5. Get your connection string
+1. **Get your Railway URL** (e.g., `https://your-app-name.railway.app`)
+2. **Update frontend:** Change `apiUrl` in `environment.prod.ts`
+3. **Update Google OAuth:** Add Railway URL to authorized URIs
+4. **Test the full application**
 
-## 📝 Final Steps
+## 🔧 Quick Test Checklist
 
-1. Update URLs in `environment.prod.ts` after getting your Railway URL
-2. Update Google OAuth redirect URIs with your production URLs
-3. Test the deployment
-
-## 🔧 Troubleshooting
-
-- Check Railway logs for backend issues
-- Check Vercel function logs for frontend issues
-- Verify all environment variables are set correctly
-- Ensure CORS origins match your frontend URL
+- ✅ Frontend loads at Vercel URL
+- ⏳ Backend API responds at Railway URL
+- ⏳ Google OAuth login works
+- ⏳ Resume creation and saving works
+- ⏳ PDF generation works
