@@ -1,0 +1,12 @@
+{
+  "name": "resume-generator-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd resume-builder-angular && npm install && npm run build:prod",
+    "install": "cd resume-builder-angular && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
