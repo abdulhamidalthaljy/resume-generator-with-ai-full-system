@@ -1,10 +1,40 @@
 # Resume Builder - Deployment Guide
 
-## ✅ Frontend Deployed Successfully!
+## 🎉 **DEPLOYMENT COMPLETE!**
 
-**Vercel URL:** https://resume-generator-rho-eight.vercel.app
+### **✅ Live URLs:**
 
-## 🚀 Next Step: Deploy Backend to Railway
+- **Frontend (Vercel):** https://resume-generator-rho-eight.vercel.app
+- **Backend (Railway):** https://resume-generator-with-ai-full-system-production.up.railway.app
+
+## 🔧 **IMPORTANT: Update Google OAuth Settings**
+
+**You must update your Google OAuth configuration for the app to work in production:**
+
+1. **Go to [Google Cloud Console](https://console.cloud.google.com/)**
+2. **Navigate to:** APIs & Services → Credentials
+3. **Edit your OAuth 2.0 Client ID**
+4. **Add to Authorized JavaScript origins:**
+   ```
+   https://resume-generator-rho-eight.vercel.app
+   https://resume-generator-with-ai-full-system-production.up.railway.app
+   ```
+5. **Add to Authorized redirect URIs:**
+   ```
+   https://resume-generator-with-ai-full-system-production.up.railway.app/api/auth/google/callback
+   ```
+
+## 🚀 **Test Your Application**
+
+Visit: https://resume-generator-rho-eight.vercel.app
+
+### **Test Checklist:**
+
+- ✅ Frontend loads properly
+- ✅ Backend API responds
+- ⏳ Google OAuth login (after updating OAuth settings)
+- ⏳ Resume creation and saving
+- ⏳ PDF generation
 
 ### Backend (Railway) - Step by Step
 
