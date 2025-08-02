@@ -7,22 +7,13 @@ const mongoose = require('mongoose');
 // Get all resumes for the authenticated user
 exports.getAllResumes = async (req, res, next) => {
     try {
-        console.log("CONTROLLER: getAllResumes called for user:", req.user.id);
-
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        console.log("User found:", user.name);
-        console.log("User resumes count:", user.resumes ? user.resumes.length : 0);
-        console.log("First resume:", user.resumes && user.resumes[0] ? user.resumes[0] : "None");
-        console.log("Resume structure:", user.resumes && user.resumes[0] ? typeof user.resumes[0] : "N/A");
-
         // Check if resumes array contains ObjectIds instead of objects
         if (user.resumes && user.resumes.length > 0 && typeof user.resumes[0] === 'string') {
-            console.warn("Found ObjectId references instead of embedded documents. This data needs migration.");
-
             // For now, return empty array to prevent frontend errors
             // TODO: Implement data migration
             return res.status(200).json([]);
@@ -40,7 +31,6 @@ exports.getAllResumes = async (req, res, next) => {
 exports.createResume = async (req, res, next) => {
     try {
         const resumeData = req.body;
-        console.log("CONTROLLER: createResume called with data:", resumeData);
 
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -89,7 +79,6 @@ exports.createResume = async (req, res, next) => {
 exports.getResumeById = async (req, res, next) => {
     try {
         const { id } = req.params;
-        console.log(`CONTROLLER: getResumeById called for id: ${id}`);
 
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -115,7 +104,6 @@ exports.updateResumeById = async (req, res, next) => {
     try {
         const { id } = req.params;
         const resumeData = req.body;
-        console.log(`CONTROLLER: updateResumeById called for id: ${id}`);
 
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -162,7 +150,6 @@ exports.updateResumeById = async (req, res, next) => {
 exports.deleteResumeById = async (req, res, next) => {
     try {
         const { id } = req.params;
-        console.log(`CONTROLLER: deleteResumeById called for id: ${id}`);
 
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -209,8 +196,6 @@ exports.deleteResumeById = async (req, res, next) => {
 // Debug endpoint to get user data
 exports.debugUser = async (req, res, next) => {
     try {
-        console.log("CONTROLLER: debugUser called for user:", req.user.id);
-
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -235,22 +220,16 @@ exports.debugUser = async (req, res, next) => {
 // Fix corrupted resume data (migration function)
 exports.fixUserData = async (req, res, next) => {
     try {
-        console.log("CONTROLLER: fixUserData called for user:", req.user.id);
-
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-
-        console.log("Before fix - resumes:", user.resumes);
 
         // Check if resumes contains ObjectId strings instead of objects
         if (user.resumes && user.resumes.length > 0) {
             const corruptedResumes = user.resumes.filter(resume => typeof resume === 'string' || resume instanceof mongoose.Types.ObjectId);
 
             if (corruptedResumes.length > 0) {
-                console.log("Found corrupted resume references:", corruptedResumes);
-
                 // Clear the corrupted references
                 user.resumes = user.resumes.filter(resume => typeof resume === 'object' && !(resume instanceof mongoose.Types.ObjectId));
 
