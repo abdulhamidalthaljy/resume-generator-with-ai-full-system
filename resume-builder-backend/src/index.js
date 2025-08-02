@@ -65,12 +65,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Debug middleware
-app.use((req, res, next) => {
-    console.log('Session:', req.session);
-    console.log('User:', req.user);
-    next();
-});
+// Debug middleware (removed for production)
+// app.use((req, res, next) => {
+//     console.log('Session:', req.session);
+//     console.log('User:', req.user);
+//     next();
+// });
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -81,7 +81,6 @@ app.use('/api/pdf', pdfRoutes); // Add PDF routes
 let connectedUsers = new Map(); // Track connected users
 
 io.on('connection', (socket) => {
-    console.log('New client connected:', socket.id);
 
     // User joins the application
     socket.on('user:join', (userData) => {
@@ -90,8 +89,6 @@ io.on('connection', (socket) => {
             ...userData,
             connectedAt: new Date()
         });
-        console.log(`User ${userData.name || 'Anonymous'} joined`);
-
         // Broadcast user count update
         io.emit('users:count', connectedUsers.size);
 
@@ -157,7 +154,6 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         const user = connectedUsers.get(socket.id);
         connectedUsers.delete(socket.id);
-        console.log(`Client disconnected: ${socket.id}`);
 
         // Broadcast updated user count
         io.emit('users:count', connectedUsers.size);
@@ -177,7 +173,6 @@ app.set('io', io);
 
 // Protected route example
 app.get('/api/dashboard', (req, res) => {
-    console.log('Dashboard access attempt:', req.isAuthenticated(), req.user);
     if (!req.isAuthenticated()) {
         return res.status(401).json({ message: 'Not authenticated' });
     }
@@ -190,5 +185,4 @@ app.get('/api/dashboard', (req, res) => {
 const PORT = 5050; // Using port 5050 instead
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-    console.log(`Socket.io server ready for connections`);
 }); 

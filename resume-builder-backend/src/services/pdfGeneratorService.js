@@ -12,7 +12,6 @@ class PDFGeneratorService {
     async initialize() {
         if (!this.isInitialized) {
             try {
-                console.log('Initializing Puppeteer browser...');
                 this.browser = await puppeteer.launch({
                     headless: true,
                     args: [
@@ -26,7 +25,6 @@ class PDFGeneratorService {
                     ]
                 });
                 this.isInitialized = true;
-                console.log('Puppeteer browser initialized successfully');
             } catch (error) {
                 console.error('Failed to initialize Puppeteer browser:', error);
                 throw error;
@@ -95,9 +93,6 @@ class PDFGeneratorService {
 
             await page.close();
 
-            const duration = Number(performance.now() - start).toFixed(0);
-            console.log(`PDF generation took ${duration}ms`);
-
             return pdfBuffer;
 
         } catch (error) {
@@ -138,9 +133,6 @@ class PDFGeneratorService {
             });
 
             await page.close();
-
-            const duration = Number(performance.now() - start).toFixed(0);
-            console.log(`Preview generation took ${duration}ms`);
 
             return imageBuffer;
 

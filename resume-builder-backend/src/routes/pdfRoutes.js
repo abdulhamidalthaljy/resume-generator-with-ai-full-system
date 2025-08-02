@@ -8,8 +8,6 @@ const pdfService = new PDFGeneratorService();
 // Generate PDF for a resume
 router.post('/generate/:resumeId', async (req, res) => {
     try {
-        console.log(`Generating PDF for resume ID: ${req.params.resumeId}`);
-
         // Find the user with the resume
         const user = await User.findOne({ 'resumes._id': req.params.resumeId });
 
@@ -46,8 +44,6 @@ router.post('/generate/:resumeId', async (req, res) => {
         // Send PDF buffer
         res.send(pdfBuffer);
 
-        console.log(`PDF generated successfully for resume: ${req.params.resumeId}`);
-
     } catch (error) {
         console.error('Error generating PDF:', error);
         res.status(500).json({
@@ -61,8 +57,6 @@ router.post('/generate/:resumeId', async (req, res) => {
 // Generate preview image for a resume
 router.post('/preview/:resumeId', async (req, res) => {
     try {
-        console.log(`Generating preview for resume ID: ${req.params.resumeId}`);
-
         // Find the user with the resume
         const user = await User.findOne({ 'resumes._id': req.params.resumeId });
 
@@ -96,8 +90,6 @@ router.post('/preview/:resumeId', async (req, res) => {
         // Send image buffer
         res.send(imageBuffer);
 
-        console.log(`Preview generated successfully for resume: ${req.params.resumeId}`);
-
     } catch (error) {
         console.error('Error generating preview:', error);
         res.status(500).json({
@@ -111,8 +103,6 @@ router.post('/preview/:resumeId', async (req, res) => {
 // Generate PDF from resume data (without saving to database)
 router.post('/generate-direct', async (req, res) => {
     try {
-        console.log('Generating PDF from provided resume data');
-
         const { resumeData, templateId = 'classic' } = req.body;
 
         if (!resumeData) {
@@ -134,8 +124,6 @@ router.post('/generate-direct', async (req, res) => {
 
         // Send PDF buffer
         res.send(pdfBuffer);
-
-        console.log('PDF generated successfully from provided data');
 
     } catch (error) {
         console.error('Error generating PDF from data:', error);

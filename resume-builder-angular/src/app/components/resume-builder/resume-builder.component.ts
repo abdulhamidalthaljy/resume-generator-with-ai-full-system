@@ -82,20 +82,15 @@ export class ResumeBuilderComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    console.log('ResumeBuilderComponent ngOnInit called');
     this.templates = this.templateService.getTemplates();
-    console.log('Templates loaded:', this.templates);
 
     // Check if we're editing an existing resume
     this.route.params.subscribe((params) => {
-      console.log('Route params:', params);
       if (params['id']) {
         this.resumeId = params['id'];
-        console.log('Resume ID found:', this.resumeId);
         this.loadExistingResume();
       } else {
         // New resume - start with template selection
-        console.log('New resume - starting with template selection');
         this.currentStep = 'template';
       }
     });
@@ -203,15 +198,6 @@ export class ResumeBuilderComponent implements OnInit {
       // Draw and compress the image
       ctx?.drawImage(img, 0, 0, width, height);
       const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7); // 70% quality
-
-      console.log('Image compression:', {
-        originalSize: file.size,
-        compressedSize: compressedDataUrl.length,
-        reduction:
-          (((file.size - compressedDataUrl.length) / file.size) * 100).toFixed(
-            1
-          ) + '%',
-      });
 
       callback(compressedDataUrl);
     };
@@ -376,11 +362,9 @@ export class ResumeBuilderComponent implements OnInit {
 
     this.isLoading = true;
     try {
-      console.log('Loading resume with ID:', this.resumeId);
       const resume = await this.resumeService
         .getResumeById(this.resumeId)
         .toPromise();
-      console.log('Loaded resume data:', resume);
 
       // Load resume data
       this.personalDetails = resume.personalDetails || ({} as PersonalDetails);
@@ -406,16 +390,6 @@ export class ResumeBuilderComponent implements OnInit {
 
       // Trigger change detection to update the UI
       this.cdr.detectChanges();
-
-      console.log('Resume loaded successfully:', {
-        personalDetails: this.personalDetails,
-        informationSummary: this.informationSummary,
-        languages: this.languages,
-        workExperience: this.workExperience,
-        education: this.education,
-        workshops: this.workshops,
-        selectedTemplate: this.selectedTemplate,
-      });
     } catch (error) {
       console.error('Failed to load resume:', error);
       alert('Failed to load resume. Please try again.');
@@ -427,7 +401,6 @@ export class ResumeBuilderComponent implements OnInit {
   // Get current resume data for preview
   getCurrentResumeData(): Resume {
     const currentData = this.buildResumeData();
-    console.log('getCurrentResumeData() called, returning:', currentData);
     return currentData;
   }
 

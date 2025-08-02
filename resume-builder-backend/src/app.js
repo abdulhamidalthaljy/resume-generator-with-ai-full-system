@@ -7,7 +7,6 @@ const passport = require('./config/passport'); // Load passport configuration
 const resumeRoutes = require('./routes/resumeRoutes');
 const authRoutes = require('./routes/authRoutes'); // Import auth routes
 const pdfRoutes = require('./routes/pdfRoutes'); // Import PDF routes
-console.log('PDF routes loaded successfully');
 const ensureAuthenticated = require('./middleware/ensureAuth');
 
 const app = express();
@@ -60,7 +59,6 @@ app.get('/', (req, res) => {
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/pdf', pdfRoutes); // Add PDF routes
-console.log('PDF routes mounted at /api/pdf');
 
 // --- Protected Route Example ---
 // app.get('/api/protected', ensureAuthenticated, (req, res) => {
@@ -70,8 +68,6 @@ console.log('PDF routes mounted at /api/pdf');
 // --- Error Handling Middleware (Basic Example) ---
 // This should be defined AFTER all your routes
 app.use((err, req, res, next) => {
-  console.error("GLOBAL ERROR HANDLER:", err.message);
-  // console.error(err.stack); // Keep this for detailed debugging
   res.status(err.status || 500).send({
     error: {
       message: err.message || 'Something went wrong!',
