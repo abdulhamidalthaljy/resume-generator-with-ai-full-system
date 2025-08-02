@@ -643,32 +643,56 @@
     </div>
   </div>
 
-  <!-- Floating Save Button -->
-  <button
-    *ngIf="currentStep === 'form'"
-    (click)="saveResume()"
-    [disabled]="isSaving"
-    class="floating-save-btn bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition duration-300 flex items-center space-x-2"
-    [class.bg-gray-400]="isSaving"
-    [class.cursor-not-allowed]="isSaving"
-  >
-    <div *ngIf="isSaving" class="loading-spinner"></div>
-    <svg
-      *ngIf="!isSaving"
-      class="w-5 h-5"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
+  <!-- Floating Action Buttons -->
+  <div *ngIf="currentStep === 'form'" class="floating-buttons">
+    <!-- Save Button -->
+    <button
+      (click)="saveResume()"
+      [disabled]="isSaving"
+      class="floating-btn bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition duration-300 flex items-center space-x-2 mb-4"
+      [class.bg-gray-400]="isSaving"
+      [class.cursor-not-allowed]="isSaving"
     >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"
-      ></path>
-    </svg>
-    <span>{{ isSaving ? "Saving..." : "Save Resume" }}</span>
-  </button>
+      <div *ngIf="isSaving" class="loading-spinner"></div>
+      <svg
+        *ngIf="!isSaving"
+        class="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"
+        ></path>
+      </svg>
+      <span>{{ isSaving ? "Saving..." : "Save Resume" }}</span>
+    </button>
+
+    <!-- Download PDF Button -->
+    <button
+      (click)="downloadPDF()"
+      class="floating-btn bg-green-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-700 transition duration-300 flex items-center space-x-2"
+      title="Download as PDF"
+    >
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        ></path>
+      </svg>
+      <span>Download PDF</span>
+    </button>
+  </div>
 </div>
 
 <!-- AI Input Dialog -->

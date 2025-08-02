@@ -8,6 +8,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const authRoutes = require('./routes/auth');
 const resumeRoutes = require('./routes/resumeRoutes');
+const pdfRoutes = require('./routes/pdfRoutes'); // Import PDF routes
 
 // Passport config
 require('./config/passport');
@@ -74,6 +75,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
+app.use('/api/pdf', pdfRoutes); // Add PDF routes
 
 // Socket.io connection handling
 let connectedUsers = new Map(); // Track connected users

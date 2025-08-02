@@ -10,6 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ResumeService } from '../../services/resume.service';
+import { PdfService } from '../../services/pdf.service';
 import {
   TemplateService,
   ResumeTemplate,
@@ -69,7 +70,8 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
     private route: ActivatedRoute,
     private router: Router,
     private resumeService: ResumeService,
-    private templateService: TemplateService
+    private templateService: TemplateService,
+    private pdfService: PdfService
   ) {}
   ngOnInit(): void {
     // Load available templates
@@ -197,16 +199,53 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
     // Simple alert showing the data. A real preview would render HTML.
     alert('Preview Data:\n' + JSON.stringify(allData, null, 2));
   }
-  triggerPrintToPdf(): void {
+  async triggerPrintToPdf(): Promise<void> {
     this.isLoadingPdf = true;
 
-    // Set a timeout to reset the loading state
-    setTimeout(() => {
-      this.isLoadingPdf = false;
-    }, 2000);
+    try {
+      if (this.resumeId) {
+        // Generate PDF for saved resume
+        const resumeName = this.personalDetails?.name || 'Resume';
+        const templateId = this.selectedTemplate?.id || 'classic';
 
-    // Trigger browser print dialog
-    window.print();
+        await this.pdfService.downloadResumePDF(
+          this.resumeId,
+          resumeName,
+          templateId
+        );
+        console.log('PDF generated and downloaded successfully');
+      } else if (this.resumeData || this.personalDetails) {
+        // Generate PDF from current data
+        const currentResumeData = this.getCurrentResumeData();
+        const templateId = this.selectedTemplate?.id || 'classic';
+
+        await this.pdfService.downloadPDFFromData(
+          currentResumeData,
+          templateId
+        );
+        console.log('PDF generated from current data successfully');
+      } else {
+        console.error('No resume data available for PDF generation');
+        alert('No resume data available. Please create a resume first.');
+      }
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      this.isLoadingPdf = false;
+    }
+  }
+
+  // Helper method to get current resume data
+  private getCurrentResumeData(): any {
+    return {
+      personalDetails: this.personalDetails,
+      informationSummary: this.informationSummary,
+      languages: this.languages || [],
+      workExperience: this.workExperience || [],
+      education: this.education || [],
+      workshops: this.workshops || [],
+    };
   }
   // Template-related methods
   setDefaultTemplate(): void {

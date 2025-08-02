@@ -8,7 +8,7 @@ A modern, full-stack web application for creating professional resumes with real
 - **Real-Time Live Preview**: Side-by-side editing with instant visual feedback
 - **AI Content Generation**: Google Gemini AI integration for intelligent content creation
 - **Real-Time Collaboration**: Socket.io-powered live notifications and activity feed
-- **Professional PDF Export**: High-quality PDF generation with print optimization
+- **Professional PDF Export**: Server-side PDF generation using Puppeteer and PDF-lib
 - **Auto-Save Functionality**: Automatic saving with visual indicators
 - **Google OAuth Authentication**: Secure login with Google accounts
 - **Responsive Design**: Mobile-friendly interface with Tailwind CSS
@@ -29,7 +29,8 @@ A modern, full-stack web application for creating professional resumes with real
 - **MongoDB with Mongoose**
 - **Socket.io Server**
 - **Passport.js (Google OAuth2)**
-- **Multer (File Upload)**
+- **Puppeteer (PDF Generation)**
+- **PDF-lib (PDF Processing)**
 
 ### AI Integration
 

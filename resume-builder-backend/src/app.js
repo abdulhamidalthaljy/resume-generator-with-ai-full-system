@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 const passport = require('./config/passport'); // Load passport configuration
 const resumeRoutes = require('./routes/resumeRoutes');
 const authRoutes = require('./routes/authRoutes'); // Import auth routes
+const pdfRoutes = require('./routes/pdfRoutes'); // Import PDF routes
+console.log('PDF routes loaded successfully');
 const ensureAuthenticated = require('./middleware/ensureAuth');
 
 const app = express();
@@ -57,6 +59,8 @@ app.get('/', (req, res) => {
 // This should come AFTER the body parsers
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/pdf', pdfRoutes); // Add PDF routes
+console.log('PDF routes mounted at /api/pdf');
 
 // --- Protected Route Example ---
 // app.get('/api/protected', ensureAuthenticated, (req, res) => {
