@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const passport = require('./config/passport'); // Load passport configuration
 const resumeRoutes = require('./routes/resumeRoutes');
 const authRoutes = require('./routes/authRoutes'); // Import auth routes
-const pdfRoutes = require('./routes/pdfRoutes'); // Import PDF routes
+// const pdfRoutes = require('./routes/pdfRoutes'); // Temporarily disabled - PDF routes
 const ensureAuthenticated = require('./middleware/ensureAuth');
 
 const app = express();
@@ -56,14 +56,28 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' })); // For parsing 
 
 // --- Basic Route (for testing) ---
 app.get('/', (req, res) => {
-  res.send('Resume Builder API is alive!');
+  res.json({
+    message: 'Resume Builder API is alive!',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Health check route
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
 });
 
 // --- API Routes ---
 // This should come AFTER the body parsers
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/pdf', pdfRoutes); // Add PDF routes
+// app.use('/api/pdf', pdfRoutes); // Temporarily disabled - PDF routes
 
 // --- Protected Route Example ---
 // app.get('/api/protected', ensureAuthenticated, (req, res) => {
