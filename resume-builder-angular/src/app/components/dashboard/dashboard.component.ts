@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { ResumeService } from '../../services/resume.service';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 import { ActivityFeedComponent } from '../activity-feed/activity-feed.component';
 
 @Component({
@@ -644,7 +645,7 @@ export class DashboardComponent implements OnInit {
   // Method to fix corrupted resume data
   fixCorruptedData() {
     console.log('Attempting to fix corrupted resume data...'); // Call the migration endpoint
-    fetch('http://localhost:5050/api/resumes/fix-data', {
+    fetch(`${environment.apiUrl}/resumes/fix-data`, {
       method: 'POST',
       credentials: 'include',
       headers: {
