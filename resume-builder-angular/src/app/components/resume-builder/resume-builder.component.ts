@@ -606,42 +606,4 @@ export class ResumeBuilderComponent implements OnInit {
       this.cdr.detectChanges();
     }, 100);
   }
-
-  // PDF Generation Methods
-  async downloadPDF(): Promise<void> {
-    try {
-      console.log('Downloading PDF...');
-      const resumeData = this.getCurrentResumeData();
-      const templateId = this.selectedTemplate?.id || 'classic';
-
-      await this.pdfService.downloadPDFFromData(resumeData, templateId);
-      console.log('PDF download completed successfully');
-    } catch (error) {
-      console.error('Error downloading PDF:', error);
-      alert('Failed to download PDF. Please try again.');
-    }
-  }
-
-  async downloadPDFForSavedResume(): Promise<void> {
-    if (!this.resumeId) {
-      // If no saved resume, use current data
-      return this.downloadPDF();
-    }
-
-    try {
-      console.log('Downloading PDF for saved resume:', this.resumeId);
-      const resumeName = this.personalDetails.name || 'Resume';
-      const templateId = this.selectedTemplate?.id || 'classic';
-
-      await this.pdfService.downloadResumePDF(
-        this.resumeId,
-        resumeName,
-        templateId
-      );
-      console.log('PDF download completed successfully for saved resume');
-    } catch (error) {
-      console.error('Error downloading PDF for saved resume:', error);
-      alert('Failed to download PDF. Please try again.');
-    }
-  }
 }
