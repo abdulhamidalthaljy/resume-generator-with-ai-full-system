@@ -22,7 +22,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/resume-bu
 // --- Middleware ---
 // Configure CORS for our Angular frontend
 const corsOptions = {
-  origin: 'http://localhost:4201', // Angular dev server port
+  origin: process.env.CLIENT_URL || 'http://localhost:4201', // Use environment variable for production
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Allow cookies if you need them
@@ -36,8 +36,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // Required for cross-origin in production
   }
 }));
 

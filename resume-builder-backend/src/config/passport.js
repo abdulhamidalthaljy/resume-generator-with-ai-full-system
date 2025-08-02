@@ -4,9 +4,11 @@ const { User } = require('../models/User');
 
 // Configure Google OAuth 2.0 strategy
 passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID || '1234567890-example.apps.googleusercontent.com', // Replace with your actual Client ID
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'EXAMPLE-secret-EXAMPLE', // Replace with your actual Client Secret
-    callbackURL: '/api/auth/google/callback',
+    clientID: process.env.GOOGLE_CLIENT_ID || '1234567890-example.apps.googleusercontent.com',
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'EXAMPLE-secret-EXAMPLE',
+    callbackURL: process.env.NODE_ENV === 'production'
+        ? `${process.env.API_URL || 'https://your-railway-app.railway.app'}/api/auth/google/callback`
+        : '/api/auth/google/callback',
     proxy: true
 },
     async function (accessToken, refreshToken, profile, done) {

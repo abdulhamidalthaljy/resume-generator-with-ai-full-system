@@ -29,11 +29,6 @@ const io = new Server(server, {
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/resume-builder', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    ssl: true,
-    sslValidate: false,
-    tlsAllowInvalidCertificates: true,
-    retryWrites: true,
-    w: 'majority'
 })
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('MongoDB connection error:', err));
@@ -53,11 +48,10 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false, // set to true in production with HTTPS
+        secure: process.env.NODE_ENV === 'production', // HTTPS required in production
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        sameSite: 'lax'
-        // Removed domain restriction for local development
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // Required for cross-origin in production
     }
 }));
 
@@ -182,7 +176,7 @@ app.get('/api/dashboard', (req, res) => {
     });
 });
 
-const PORT = 5050; // Using port 5050 instead
-server.listen(PORT, () => {
+const PORT = process.env.PORT || 5050; // Railway will provide PORT
+server.listen(PORT, '0.0.0.0', () => { // Bind to all interfaces for Railway
     console.log(`Server running on port ${PORT}`);
 }); 
