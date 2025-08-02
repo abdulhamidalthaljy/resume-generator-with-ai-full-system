@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
 
 export interface SocketNotification {
   type: 'success' | 'info' | 'warning' | 'error';
@@ -50,7 +49,7 @@ export class SocketService {
   public userCount$ = this.userCountSubject.asObservable();
 
   constructor() {
-    this.socket = io(environment.apiUrl.replace('/api', ''), {
+    this.socket = io('http://localhost:5050', {
       autoConnect: false,
       withCredentials: true,
     });

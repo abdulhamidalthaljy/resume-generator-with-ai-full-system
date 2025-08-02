@@ -1,8 +1,0 @@
-[variables]
-NODE_ENV = "production"
-
-[phases.build]
-cmds = ["cd resume-builder-backend && npm install"]
-
-[phases.start]
-cmd = "cd resume-builder-backend && npm start"

@@ -1,25 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const PDFGeneratorService = require('../services/pdfGeneratorService');
-const { User } = require('../models/User');
+const { Resume } = require('../models/User');
 
 const pdfService = new PDFGeneratorService();
 
 // Generate PDF for a resume
 router.post('/generate/:resumeId', async (req, res) => {
     try {
-        // Find the user with the resume
-        const user = await User.findOne({ 'resumes._id': req.params.resumeId });
+        console.log(`Generating PDF for resume ID: ${req.params.resumeId}`);
 
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User with resume not found'
-            });
-        }
-
-        // Find the specific resume within the user's resumes
-        const resume = user.resumes.id(req.params.resumeId);
+        // Get resume data from database
+        const resume = await Resume.findById(req.params.resumeId);
 
         if (!resume) {
             return res.status(404).json({
@@ -44,6 +36,8 @@ router.post('/generate/:resumeId', async (req, res) => {
         // Send PDF buffer
         res.send(pdfBuffer);
 
+        console.log(`PDF generated successfully for resume: ${req.params.resumeId}`);
+
     } catch (error) {
         console.error('Error generating PDF:', error);
         res.status(500).json({
@@ -57,18 +51,10 @@ router.post('/generate/:resumeId', async (req, res) => {
 // Generate preview image for a resume
 router.post('/preview/:resumeId', async (req, res) => {
     try {
-        // Find the user with the resume
-        const user = await User.findOne({ 'resumes._id': req.params.resumeId });
+        console.log(`Generating preview for resume ID: ${req.params.resumeId}`);
 
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User with resume not found'
-            });
-        }
-
-        // Find the specific resume within the user's resumes
-        const resume = user.resumes.id(req.params.resumeId);
+        // Get resume data from database
+        const resume = await Resume.findById(req.params.resumeId);
 
         if (!resume) {
             return res.status(404).json({
@@ -90,6 +76,8 @@ router.post('/preview/:resumeId', async (req, res) => {
         // Send image buffer
         res.send(imageBuffer);
 
+        console.log(`Preview generated successfully for resume: ${req.params.resumeId}`);
+
     } catch (error) {
         console.error('Error generating preview:', error);
         res.status(500).json({
@@ -103,6 +91,8 @@ router.post('/preview/:resumeId', async (req, res) => {
 // Generate PDF from resume data (without saving to database)
 router.post('/generate-direct', async (req, res) => {
     try {
+        console.log('Generating PDF from provided resume data');
+
         const { resumeData, templateId = 'classic' } = req.body;
 
         if (!resumeData) {
@@ -124,6 +114,8 @@ router.post('/generate-direct', async (req, res) => {
 
         // Send PDF buffer
         res.send(pdfBuffer);
+
+        console.log('PDF generated successfully from provided data');
 
     } catch (error) {
         console.error('Error generating PDF from data:', error);

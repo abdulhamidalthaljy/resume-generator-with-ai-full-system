@@ -8,7 +8,6 @@ const http = require('http');
 const { Server } = require('socket.io');
 const authRoutes = require('./routes/auth');
 const resumeRoutes = require('./routes/resumeRoutes');
-const pdfRoutes = require('./routes/pdfRoutes'); // Import PDF routes
 
 // Passport config
 require('./config/passport');
@@ -29,6 +28,11 @@ const io = new Server(server, {
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/resume-builder', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    ssl: true,
+    sslValidate: false,
+    tlsAllowInvalidCertificates: true,
+    retryWrites: true,
+    w: 'majority'
 })
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('MongoDB connection error:', err));
@@ -48,10 +52,11 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production', // HTTPS required in production
+        secure: false, // set to true in production with HTTPS
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // Required for cross-origin in production
+        sameSite: 'lax'
+        // Removed domain restriction for local development
     }
 }));
 
@@ -59,22 +64,22 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Debug middleware (removed for production)
-// app.use((req, res, next) => {
-//     console.log('Session:', req.session);
-//     console.log('User:', req.user);
-//     next();
-// });
+// Debug middleware
+app.use((req, res, next) => {
+    console.log('Session:', req.session);
+    console.log('User:', req.user);
+    next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
-app.use('/api/pdf', pdfRoutes); // Add PDF routes
 
 // Socket.io connection handling
 let connectedUsers = new Map(); // Track connected users
 
 io.on('connection', (socket) => {
+    console.log('New client connected:', socket.id);
 
     // User joins the application
     socket.on('user:join', (userData) => {
@@ -83,6 +88,8 @@ io.on('connection', (socket) => {
             ...userData,
             connectedAt: new Date()
         });
+        console.log(`User ${userData.name || 'Anonymous'} joined`);
+
         // Broadcast user count update
         io.emit('users:count', connectedUsers.size);
 
@@ -148,6 +155,7 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         const user = connectedUsers.get(socket.id);
         connectedUsers.delete(socket.id);
+        console.log(`Client disconnected: ${socket.id}`);
 
         // Broadcast updated user count
         io.emit('users:count', connectedUsers.size);
@@ -167,6 +175,7 @@ app.set('io', io);
 
 // Protected route example
 app.get('/api/dashboard', (req, res) => {
+    console.log('Dashboard access attempt:', req.isAuthenticated(), req.user);
     if (!req.isAuthenticated()) {
         return res.status(401).json({ message: 'Not authenticated' });
     }
@@ -176,7 +185,8 @@ app.get('/api/dashboard', (req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 5050; // Railway will provide PORT
-server.listen(PORT, '0.0.0.0', () => { // Bind to all interfaces for Railway
+const PORT = 5050; // Using port 5050 instead
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Socket.io server ready for connections`);
 }); 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { PersonalDetails } from '../models/personal-details.model';
@@ -13,54 +13,41 @@ import { Education } from '../models/education.model';
 })
 export class ResumeService {
   private apiUrl = `${environment.apiUrl}/resumes`;
-  private readonly TOKEN_KEY = 'auth_token';
 
   constructor(private http: HttpClient) {}
 
-  private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem(this.TOKEN_KEY);
-    return token
-      ? new HttpHeaders().set('Authorization', `Bearer ${token}`)
-      : new HttpHeaders();
-  }
-
   // Create a new resume
   createResume(resumeData: any): Observable<any> {
-    const headers = this.getAuthHeaders();
     return this.http
-      .post(this.apiUrl, resumeData, { headers })
+      .post(this.apiUrl, resumeData, { withCredentials: true })
       .pipe(catchError(this.handleError));
   }
 
   // Get all resumes
   getResumes(): Observable<any> {
-    const headers = this.getAuthHeaders();
     return this.http
-      .get(this.apiUrl, { headers })
+      .get(this.apiUrl, { withCredentials: true })
       .pipe(catchError(this.handleError));
   }
 
   // Get a specific resume by ID
   getResumeById(id: string): Observable<any> {
-    const headers = this.getAuthHeaders();
     return this.http
-      .get(`${this.apiUrl}/${id}`, { headers })
+      .get(`${this.apiUrl}/${id}`, { withCredentials: true })
       .pipe(catchError(this.handleError));
   }
 
   // Update a resume
   updateResume(id: string, resumeData: any): Observable<any> {
-    const headers = this.getAuthHeaders();
     return this.http
-      .put(`${this.apiUrl}/${id}`, resumeData, { headers })
+      .put(`${this.apiUrl}/${id}`, resumeData, { withCredentials: true })
       .pipe(catchError(this.handleError));
   }
 
   // Delete a resume
   deleteResume(id: string): Observable<any> {
-    const headers = this.getAuthHeaders();
     return this.http
-      .delete(`${this.apiUrl}/${id}`, { headers })
+      .delete(`${this.apiUrl}/${id}`, { withCredentials: true })
       .pipe(catchError(this.handleError));
   }
 
