@@ -9,11 +9,11 @@ router.get('/google',
 
 router.get('/google/callback',
     passport.authenticate('google', {
-        failureRedirect: 'http://localhost:4201/login',
+        failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:4201'}/login`,
         failureMessage: true
     }),
     (req, res) => {
-        res.redirect('http://localhost:4201/dashboard');
+        res.redirect(`${process.env.CLIENT_URL || 'http://localhost:4201'}/dashboard`);
     }
 );
 
@@ -32,7 +32,7 @@ router.get('/logout', (req, res, next) => {
             console.error('Logout error:', err);
             return next(err);
         }
-        res.redirect('http://localhost:4201/login');
+        res.redirect(`${process.env.CLIENT_URL || 'http://localhost:4201'}/login`);
     });
 });
 
