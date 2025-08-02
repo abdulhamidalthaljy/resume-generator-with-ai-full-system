@@ -1,16 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import axios from 'axios';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AIService {
+  private http = inject(HttpClient);
   private apiUrl =
     'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
   private apiKey = environment.geminiApiKey;
-
-  constructor() {}
 
   private cleanResponse(text: string): string {
     // Remove markdown code block syntax if present
@@ -23,27 +23,27 @@ export class AIService {
 
   private async makeRequest(prompt: string) {
     try {
-      const response = await axios.post(
-        `${this.apiUrl}?key=${this.apiKey}`,
-        {
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt,
-                },
-              ],
-            },
-          ],
-        },
-        {
+      const requestBody = {
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt,
+              },
+            ],
+          },
+        ],
+      };
+
+      const response = await firstValueFrom(
+        this.http.post<any>(`${this.apiUrl}?key=${this.apiKey}`, requestBody, {
           headers: {
             'Content-Type': 'application/json',
           },
-        }
+        })
       );
 
-      const rawText = response.data.candidates[0].content.parts[0].text;
+      const rawText = response.candidates[0].content.parts[0].text;
       return this.cleanResponse(rawText);
     } catch (error) {
       console.error('Error making request:', error);
