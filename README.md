@@ -119,16 +119,17 @@ Update `resume-builder-angular/src/environments/environment.ts`:
 
 ```typescript
 // Detect if running in production based on hostname
-const isProduction = typeof window !== 'undefined' && 
-  (window.location.hostname.includes('vercel.app') || 
-   window.location.hostname.includes('netlify.app') ||
-   window.location.hostname !== 'localhost');
+const isProduction =
+  typeof window !== "undefined" &&
+  (window.location.hostname.includes("vercel.app") ||
+    window.location.hostname.includes("netlify.app") ||
+    window.location.hostname !== "localhost");
 
 export const environment = {
   production: isProduction,
   apiUrl: isProduction
-    ? 'https://resume-generator-with-ai-full-system-production-2a76.up.railway.app/api'
-    : 'http://localhost:5050/api',
+    ? "https://resume-generator-with-ai-full-system-production-2a76.up.railway.app/api"
+    : "http://localhost:5050/api",
 };
 ```
 
@@ -298,6 +299,7 @@ my_project/
 ## 📝 API Endpoints
 
 ### Base URLs:
+
 - **Local**: `http://localhost:5050/api`
 - **Production**: `https://resume-generator-with-ai-full-system-production-2a76.up.railway.app/api`
 
