@@ -5,7 +5,7 @@
 			"label": "Start Resume Backend",
 			"type": "shell",
 			"command": "node",
-			"args": ["src/server.js"],
+			"args": ["src/index.js"],
 			"options": {
 				"cwd": "${workspaceFolder}/resume-builder-backend"
 			},

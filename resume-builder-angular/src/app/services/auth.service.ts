@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -21,16 +21,47 @@ export class AuthService {
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   constructor(private http: HttpClient) {
+    // Check for token in URL parameters first (from OAuth redirect)
+    this.handleTokenFromUrl();
     this.checkAuthStatus().subscribe();
   }
 
   private apiUrl = environment.apiUrl;
+  private readonly TOKEN_KEY = 'auth_token';
+
+  private handleTokenFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    if (token) {
+      console.log('Token received from URL, storing...');
+      localStorage.setItem(this.TOKEN_KEY, token);
+
+      // Clean up URL by removing token parameter
+      const url = new URL(window.location.href);
+      url.searchParams.delete('token');
+      window.history.replaceState({}, document.title, url.toString());
+    }
+  }
+
+  private getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.getToken();
+    return token
+      ? new HttpHeaders().set('Authorization', `Bearer ${token}`)
+      : new HttpHeaders();
+  }
 
   checkAuthStatus() {
+    const headers = this.getAuthHeaders();
+
     return this.http
       .get<{ isAuthenticated: boolean; user: User | null }>(
         `${this.apiUrl}/auth/status`,
-        { withCredentials: true }
+        { headers }
       )
       .pipe(
         tap((response) => {
@@ -40,12 +71,15 @@ export class AuthService {
             this.currentUserSubject.next(response.user);
           } else {
             this.currentUserSubject.next(null);
+            // Clear invalid token
+            localStorage.removeItem(this.TOKEN_KEY);
           }
         }),
         catchError((error) => {
           console.error('Auth status check failed:', error);
           this.isAuthenticatedSubject.next(false);
           this.currentUserSubject.next(null);
+          localStorage.removeItem(this.TOKEN_KEY);
           return of({ isAuthenticated: false, user: null });
         })
       );
@@ -56,18 +90,17 @@ export class AuthService {
   }
 
   logout() {
-    return this.http
-      .get(`${this.apiUrl}/auth/logout`, { withCredentials: true })
-      .pipe(
-        tap(() => {
-          this.isAuthenticatedSubject.next(false);
-          this.currentUserSubject.next(null);
-        }),
-        catchError((error) => {
-          console.error('Logout failed:', error);
-          return of(null);
-        })
-      );
+    // Clear token from localStorage
+    localStorage.removeItem(this.TOKEN_KEY);
+    this.isAuthenticatedSubject.next(false);
+    this.currentUserSubject.next(null);
+
+    return this.http.get(`${this.apiUrl}/auth/logout`).pipe(
+      catchError((error) => {
+        console.error('Logout failed:', error);
+        return of(null);
+      })
+    );
   }
 
   get currentUser(): User | null {

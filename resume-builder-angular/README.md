@@ -2,6 +2,32 @@
 
 A modern web application built with Angular that allows users to create, edit, and manage professional resumes.
 
+## 🚀 Vercel Deployment Settings
+
+### Build Settings
+
+- **Build Command**: `npm run build:prod`
+- **Output Directory**: `dist/resume-builder-angular`
+- **Install Command**: `npm install`
+
+### Environment Variables (Add in Vercel Dashboard)
+
+```
+NODE_ENV=production
+```
+
+### Important Notes
+
+- The project uses Angular 20.0.0
+- Node.js 18+ is required
+- All unnecessary dependencies have been removed for compatibility
+
+### Post-Deployment
+
+1. Get your Vercel URL (e.g., `https://your-app-name.vercel.app`)
+2. Update `src/environments/environment.prod.ts` with your Railway backend URL
+3. Commit and push to trigger a rebuild
+
 ## Features
 
 - Interactive resume form with real-time preview
@@ -13,8 +39,8 @@ A modern web application built with Angular that allows users to create, edit, a
 
 ## Prerequisites
 
-- Node.js (v14 or higher)
-- npm (v6 or higher)
+- Node.js (v18 or higher)
+- npm (v9 or higher)
 - Angular CLI
 
 ## Installation
@@ -22,7 +48,7 @@ A modern web application built with Angular that allows users to create, edit, a
 1. Clone the repository:
 
 ```bash
-git clone <https://github.com/abdulhamidalthaljy/resume-builder-angular.git>
+git clone <https://github.com/abdulhamidalthaljy/resume-generator-with-ai-full-system.git>
 cd resume-builder-angular
 ```
 
@@ -38,14 +64,13 @@ npm install
 ng serve
 ```
 
-4. Open your browser and navigate to `http://localhost:4200`
+4. Open your browser and navigate to `http://localhost:4201`
 
 ## Development
 
 - Run `ng serve` for a dev server
-- Run `ng build` to build the project
+- Run `ng build:prod` to build for production
 - Run `ng test` to execute unit tests
-- Run `ng e2e` to execute end-to-end tests
 
 ## Project Structure
 
@@ -53,11 +78,3 @@ ng serve
 - `src/app/services/` - Contains services for API communication
 - `src/app/models/` - Contains TypeScript interfaces and models
 - `src/assets/` - Contains static assets
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request

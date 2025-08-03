@@ -5,7 +5,7 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 const passport = require('./config/passport'); // Load passport configuration
 const resumeRoutes = require('./routes/resumeRoutes');
-const authRoutes = require('./routes/authRoutes'); // Import auth routes
+const authRoutes = require('./routes/auth'); // Import auth routes with JWT support
 const pdfRoutes = require('./routes/pdfRoutes'); // Import PDF routes
 const ensureAuthenticated = require('./middleware/ensureAuth');
 
@@ -22,10 +22,11 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/resume-bu
 // --- Middleware ---
 // Configure CORS for our Angular frontend
 const corsOptions = {
-  origin: 'http://localhost:4201', // Angular dev server port
+  origin: process.env.CLIENT_URL || 'http://localhost:4201', // Use environment variable for production
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true // Allow cookies if you need them
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  credentials: true, // Allow cookies if you need them
+  exposedHeaders: ['Set-Cookie']
 };
 
 app.use(cors(corsOptions));
@@ -36,8 +37,11 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Required for cross-origin in production
+    httpOnly: false, // Allow JavaScript access to cookies for cross-origin
+    domain: process.env.NODE_ENV === 'production' ? undefined : undefined // Don't set domain for cross-origin
   }
 }));
 
@@ -68,8 +72,6 @@ app.use('/api/pdf', pdfRoutes); // Add PDF routes
 // --- Error Handling Middleware (Basic Example) ---
 // This should be defined AFTER all your routes
 app.use((err, req, res, next) => {
-  console.error("GLOBAL ERROR HANDLER:", err.message);
-  // console.error(err.stack); // Keep this for detailed debugging
   res.status(err.status || 500).send({
     error: {
       message: err.message || 'Something went wrong!',

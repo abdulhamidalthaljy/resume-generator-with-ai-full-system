@@ -8,6 +8,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const authRoutes = require('./routes/auth');
 const resumeRoutes = require('./routes/resumeRoutes');
+const pdfRoutes = require('./routes/pdfRoutes'); // Import PDF routes
 
 // Passport config
 require('./config/passport');
@@ -28,34 +29,13 @@ const io = new Server(server, {
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/resume-builder', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    ssl: true,
-    tlsAllowInvalidCertificates: true,
-    retryWrites: true,
-    w: 'majority'
 })
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('MongoDB connection error:', err));
 
 // Middleware
-const allowedOrigins = [
-    process.env.CLIENT_URL || 'http://localhost:4201',
-    'http://localhost:4201',
-    'http://localhost:4200',
-    'https://resume-generator-with-ai-full-syste.vercel.app'
-];
-
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            console.log('CORS blocked origin:', origin);
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: process.env.CLIENT_URL || 'http://localhost:4201',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -68,10 +48,10 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production', // HTTPS in production
+        secure: process.env.NODE_ENV === 'production', // HTTPS required in production
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // 'none' for cross-site cookies in production
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // Required for cross-origin in production
     }
 }));
 
@@ -79,56 +59,22 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Debug middleware (removed for production)
+// app.use((req, res, next) => {
+//     console.log('Session:', req.session);
+//     console.log('User:', req.user);
+//     next();
+// });
+
 // Routes
-app.get('/', (req, res) => {
-    res.json({
-        message: 'Resume Builder API is running!',
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development',
-        version: '1.0.0'
-    });
-});
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.json({
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        environment: process.env.NODE_ENV || 'development',
-        database: 'connected' // You could add actual DB health check here
-    });
-});
-
-app.use('/auth', authRoutes); // Direct auth routes (legacy support)
 app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error('Error:', err);
-    res.status(err.status || 500).json({
-        error: {
-            message: err.message || 'Internal Server Error',
-            ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-        }
-    });
-});
-
-// 404 handler
-app.use('*', (req, res) => {
-    res.status(404).json({
-        error: 'Route not found',
-        path: req.originalUrl,
-        method: req.method
-    });
-});
+app.use('/api/pdf', pdfRoutes); // Add PDF routes
 
 // Socket.io connection handling
 let connectedUsers = new Map(); // Track connected users
 
 io.on('connection', (socket) => {
-    console.log('New client connected:', socket.id);
 
     // User joins the application
     socket.on('user:join', (userData) => {
@@ -137,8 +83,6 @@ io.on('connection', (socket) => {
             ...userData,
             connectedAt: new Date()
         });
-        console.log(`User ${userData.name || 'Anonymous'} joined`);
-
         // Broadcast user count update
         io.emit('users:count', connectedUsers.size);
 
@@ -204,7 +148,6 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         const user = connectedUsers.get(socket.id);
         connectedUsers.delete(socket.id);
-        console.log(`Client disconnected: ${socket.id}`);
 
         // Broadcast updated user count
         io.emit('users:count', connectedUsers.size);
@@ -224,7 +167,6 @@ app.set('io', io);
 
 // Protected route example
 app.get('/api/dashboard', (req, res) => {
-    console.log('Dashboard access attempt:', req.isAuthenticated(), req.user);
     if (!req.isAuthenticated()) {
         return res.status(401).json({ message: 'Not authenticated' });
     }
@@ -234,8 +176,7 @@ app.get('/api/dashboard', (req, res) => {
     });
 });
 
-const PORT = 5050; // Using port 5050 instead
-server.listen(PORT, () => {
+const PORT = process.env.PORT || 5050; // Railway will provide PORT
+server.listen(PORT, '0.0.0.0', () => { // Bind to all interfaces for Railway
     console.log(`Server running on port ${PORT}`);
-    console.log(`Socket.io server ready for connections`);
 }); 
