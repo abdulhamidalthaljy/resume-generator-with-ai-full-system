@@ -11,15 +11,30 @@ exports.getAllResumes = async (req, res, next) => {
         console.log('GetAllResumes - req.user.id:', req.user.id);
         console.log('GetAllResumes - req.user._id:', req.user._id);
 
+        // Test if we can connect to the database at all
+        const mongoose = require('mongoose');
+        console.log('GetAllResumes - DB connection state:', mongoose.connection.readyState);
+
+        // Try to validate the ObjectId format
+        if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
+            console.log('GetAllResumes - Invalid ObjectId format:', req.user.id);
+            return res.status(400).json({ message: "Invalid user ID format" });
+        }
+
         const user = await User.findById(req.user.id);
         console.log('GetAllResumes - Found user:', !!user);
+        console.log('GetAllResumes - User object:', user ? 'exists' : 'null');
 
         if (!user) {
             console.log('GetAllResumes - User not found for ID:', req.user.id);
+            // Let's also try to find the user by email to debug
+            const userByEmail = await User.findOne({ email: req.user.email });
+            console.log('GetAllResumes - User found by email:', !!userByEmail);
+            if (userByEmail) {
+                console.log('GetAllResumes - User ID from email search:', userByEmail._id);
+            }
             return res.status(404).json({ message: "User not found" });
-        }
-
-        // Check if resumes array contains ObjectIds instead of objects
+        }        // Check if resumes array contains ObjectIds instead of objects
         if (user.resumes && user.resumes.length > 0 && typeof user.resumes[0] === 'string') {
             // Return empty array for corrupted data
             return res.status(200).json([]);
