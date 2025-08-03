@@ -7,34 +7,28 @@ const mongoose = require('mongoose');
 // Get all resumes for the authenticated user
 exports.getAllResumes = async (req, res, next) => {
     try {
-        console.log('GetAllResumes - req.user:', req.user);
-        console.log('GetAllResumes - req.user.id:', req.user.id);
-        console.log('GetAllResumes - req.user._id:', req.user._id);
-
         // Test if we can connect to the database at all
         const mongoose = require('mongoose');
-        console.log('GetAllResumes - DB connection state:', mongoose.connection.readyState);
 
         // Try to validate the ObjectId format
         if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
-            console.log('GetAllResumes - Invalid ObjectId format:', req.user.id);
             return res.status(400).json({ message: "Invalid user ID format" });
         }
 
         const user = await User.findById(req.user.id);
-        console.log('GetAllResumes - Found user:', !!user);
-        console.log('GetAllResumes - User object:', user ? 'exists' : 'null');
 
         if (!user) {
-            console.log('GetAllResumes - User not found for ID:', req.user.id);
             // Let's also try to find the user by email to debug
             const userByEmail = await User.findOne({ email: req.user.email });
-            console.log('GetAllResumes - User found by email:', !!userByEmail);
             if (userByEmail) {
-                console.log('GetAllResumes - User ID from email search:', userByEmail._id);
+                // User found by email, use that user instead
+                user = userByEmail;
+            } else {
+                return res.status(404).json({ message: "User not found" });
             }
-            return res.status(404).json({ message: "User not found" });
-        }        // Check if resumes array contains ObjectIds instead of objects
+        }
+
+        // Check if resumes array contains ObjectIds instead of objects
         if (user.resumes && user.resumes.length > 0 && typeof user.resumes[0] === 'string') {
             // Return empty array for corrupted data
             return res.status(200).json([]);
@@ -43,7 +37,6 @@ exports.getAllResumes = async (req, res, next) => {
         // Return user's resumes (embedded documents)
         res.status(200).json(user.resumes || []);
     } catch (error) {
-        console.error("Error in getAllResumes:", error);
         next(error);
     }
 };
@@ -51,17 +44,11 @@ exports.getAllResumes = async (req, res, next) => {
 // Create a new resume for the authenticated user
 exports.createResume = async (req, res, next) => {
     try {
-        console.log('CreateResume - req.user:', req.user);
-        console.log('CreateResume - req.user.id:', req.user.id);
-        console.log('CreateResume - req.user._id:', req.user._id);
-
         const resumeData = req.body;
 
         const user = await User.findById(req.user.id);
-        console.log('CreateResume - Found user:', !!user);
 
         if (!user) {
-            console.log('CreateResume - User not found for ID:', req.user.id);
             return res.status(404).json({ message: "User not found" });
         }
 
@@ -98,7 +85,6 @@ exports.createResume = async (req, res, next) => {
 
         res.status(201).json(newResume);
     } catch (error) {
-        console.error("Error in createResume:", error);
         next(error);
     }
 };
@@ -122,7 +108,6 @@ exports.getResumeById = async (req, res, next) => {
 
         res.status(200).json(resume);
     } catch (error) {
-        console.error("Error in getResumeById:", error);
         next(error);
     }
 };
@@ -132,7 +117,6 @@ exports.updateResumeById = async (req, res, next) => {
     try {
         const { id } = req.params;
         const resumeData = req.body;
-        console.log(`CONTROLLER: updateResumeById called for id: ${id}`);
 
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -170,7 +154,6 @@ exports.updateResumeById = async (req, res, next) => {
 
         res.status(200).json(user.resumes[resumeIndex]);
     } catch (error) {
-        console.error("Error in updateResumeById:", error);
         next(error);
     }
 };
@@ -217,7 +200,6 @@ exports.deleteResumeById = async (req, res, next) => {
 
         res.status(200).json({ message: "Resume deleted successfully" });
     } catch (error) {
-        console.error("Error in deleteResumeById:", error);
         next(error);
     }
 };

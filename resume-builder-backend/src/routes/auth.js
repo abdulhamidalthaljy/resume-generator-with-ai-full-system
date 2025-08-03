@@ -15,20 +15,13 @@ router.get('/google/callback',
     }),
     (req, res) => {
         try {
-            // Log successful authentication for debugging
-            console.log('Google OAuth successful, user:', req.user);
-            console.log('Google OAuth user._id:', req.user._id);
-            console.log('Google OAuth user.id:', req.user.id);
-
             // Generate JWT token
             const token = generateToken(req.user);
-            console.log('Generated JWT token for user:', req.user.email);
 
             // Redirect to frontend with token as URL parameter
             const redirectUrl = `${process.env.CLIENT_URL || 'http://localhost:4201'}/dashboard?token=${token}`;
             res.redirect(redirectUrl);
         } catch (error) {
-            console.error('JWT generation error:', error);
             res.redirect(`${process.env.CLIENT_URL || 'http://localhost:4201'}/login`);
         }
     }
@@ -43,12 +36,7 @@ router.get('/status', (req, res) => {
             ? authHeader.substring(7)
             : null;
 
-        console.log('Auth status check:');
-        console.log('- Authorization header:', authHeader);
-        console.log('- Token present:', !!token);
-
         if (!token) {
-            console.log('- No token provided');
             return res.json({
                 isAuthenticated: false,
                 user: null
@@ -57,7 +45,6 @@ router.get('/status', (req, res) => {
 
         // Verify JWT token
         const decoded = verifyToken(token);
-        console.log('- Token valid, user:', decoded.email);
 
         res.json({
             isAuthenticated: true,
@@ -70,7 +57,6 @@ router.get('/status', (req, res) => {
         });
 
     } catch (error) {
-        console.log('- Token verification failed:', error.message);
         res.json({
             isAuthenticated: false,
             user: null

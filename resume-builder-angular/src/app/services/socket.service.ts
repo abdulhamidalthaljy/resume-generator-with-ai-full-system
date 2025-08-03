@@ -80,12 +80,10 @@ export class SocketService {
   private setupEventListeners() {
     // Connection events
     this.socket.on('connect', () => {
-      console.log('Connected to Socket.io server');
       this.connected = true;
     });
 
     this.socket.on('disconnect', () => {
-      console.log('Disconnected from Socket.io server');
       this.connected = false;
     });
 

@@ -34,7 +34,6 @@ export class AuthService {
     const token = urlParams.get('token');
 
     if (token) {
-      console.log('Token received from URL, storing...');
       localStorage.setItem(this.TOKEN_KEY, token);
 
       // Clean up URL by removing token parameter
@@ -65,7 +64,6 @@ export class AuthService {
       )
       .pipe(
         tap((response) => {
-          console.log('Auth status response:', response);
           this.isAuthenticatedSubject.next(response.isAuthenticated);
           if (response.isAuthenticated && response.user) {
             this.currentUserSubject.next(response.user);
@@ -76,7 +74,6 @@ export class AuthService {
           }
         }),
         catchError((error) => {
-          console.error('Auth status check failed:', error);
           this.isAuthenticatedSubject.next(false);
           this.currentUserSubject.next(null);
           localStorage.removeItem(this.TOKEN_KEY);
@@ -97,7 +94,6 @@ export class AuthService {
 
     return this.http.get(`${this.apiUrl}/auth/logout`).pipe(
       catchError((error) => {
-        console.error('Logout failed:', error);
         return of(null);
       })
     );

@@ -181,7 +181,6 @@ export class ResumeFormComponent implements OnInit {
       // Hide loading state and show success message
       alert('Resume content generated successfully!');
     } catch (error) {
-      console.error('Error generating resume content:', error);
       alert('Error generating resume content. Please try again.');
     } finally {
       this.showAIDialog = false;
@@ -317,37 +316,23 @@ export class ResumeFormComponent implements OnInit {
       templateId: this.selectedTemplate?.id || 'classic',
     };
 
-    console.log('Attempting to save resume:', resumeData);
-    console.log('Resume ID:', this.resumeId);
-
     // If we have an existing resumeId, update it, otherwise create new
     if (this.resumeId) {
       this.resumeService.updateResume(this.resumeId, resumeData).subscribe({
         next: (response) => {
-          console.log('Resume updated successfully:', response);
           alert('Resume updated successfully!');
         },
         error: (error) => {
-          console.error('Error updating resume:', error);
-          console.error('Error status:', error.status);
-          console.error('Error message:', error.message);
-          console.error('Error details:', error.error);
           alert('Error updating resume. Please try again.');
         },
       });
     } else {
       this.resumeService.createResume(resumeData).subscribe({
         next: (response) => {
-          console.log('Resume created successfully:', response);
           this.resumeId = response.id || response._id; // Store the ID for future updates
           alert('Resume saved successfully!');
         },
         error: (error) => {
-          console.error('Error saving resume:', error);
-          console.error('Error status:', error.status);
-          console.error('Error message:', error.message);
-          console.error('Error details:', error.error);
-
           // Provide more specific error messages
           if (error.status === 401) {
             alert('You are not authenticated. Please log in again.');
@@ -371,7 +356,6 @@ export class ResumeFormComponent implements OnInit {
   loadResume(id: string) {
     this.resumeService.getResumeById(id).subscribe({
       next: (resume) => {
-        console.log('Loaded resume for editing:', resume);
         this.resumeId = id;
         this.personalDetails = resume.personalDetails || {
           name: '',
@@ -410,7 +394,6 @@ export class ResumeFormComponent implements OnInit {
       },
       error: (error) => {
         alert('Error loading resume. Please try again.');
-        console.error('Error loading resume:', error);
       },
     });
   }
@@ -430,7 +413,6 @@ export class ResumeFormComponent implements OnInit {
         },
         error: (error) => {
           alert('Error deleting resume. Please try again.');
-          console.error('Error deleting resume:', error);
         },
       });
     }

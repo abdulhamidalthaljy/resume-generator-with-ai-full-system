@@ -120,18 +120,6 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
       this.workExperience = resumeData.workExperience;
       this.education = resumeData.education;
       this.workshops = resumeData.workshops;
-
-      console.log(
-        'ResumePreviewComponent: Input data updated via ngOnChanges',
-        {
-          personalDetails: this.personalDetails,
-          informationSummary: this.informationSummary,
-          languages: this.languages,
-          workExperience: this.workExperience,
-          education: this.education,
-          workshops: this.workshops,
-        }
-      );
     }
 
     // Handle template changes
@@ -139,10 +127,7 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
       changes['selectedTemplate'] &&
       changes['selectedTemplate'].currentValue
     ) {
-      console.log(
-        'ResumePreviewComponent: Template changed to',
-        changes['selectedTemplate'].currentValue
-      );
+      // Template has changed
     }
   }
 
@@ -169,7 +154,6 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error loading resume:', error);
         this.error = 'Failed to load resume. Please try again.';
         this.isLoading = false;
       },
@@ -213,7 +197,6 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
           resumeName,
           templateId
         );
-        console.log('PDF generated and downloaded successfully');
       } else if (this.resumeData || this.personalDetails) {
         // Generate PDF from current data
         const currentResumeData = this.getCurrentResumeData();
@@ -223,13 +206,10 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
           currentResumeData,
           templateId
         );
-        console.log('PDF generated from current data successfully');
       } else {
-        console.error('No resume data available for PDF generation');
         alert('No resume data available. Please create a resume first.');
       }
     } catch (error) {
-      console.error('Error generating PDF:', error);
       alert('Failed to generate PDF. Please try again.');
     } finally {
       this.isLoadingPdf = false;
@@ -273,10 +253,10 @@ export class ResumePreviewComponent implements OnInit, OnChanges {
         this.resume.templateId = templateId;
         this.resumeService.updateResume(this.resumeId, this.resume).subscribe({
           next: (updatedResume) => {
-            console.log('Template updated successfully');
+            // Template updated successfully
           },
           error: (error) => {
-            console.error('Error updating template:', error);
+            // Error updating template
           },
         });
       }

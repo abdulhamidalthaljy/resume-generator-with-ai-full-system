@@ -502,15 +502,8 @@ export class DashboardComponent implements OnInit {
     this.isLoading = true;
     this.resumeService.getResumes().subscribe({
       next: (data: any) => {
-        console.log('Loaded resumes:', data);
-        console.log('First resume structure:', data[0]);
-        console.log('Data type:', typeof data[0]);
-
         // Check if we received IDs instead of objects
         if (data && data.length > 0 && typeof data[0] === 'string') {
-          console.warn(
-            'Received resume IDs instead of objects. Converting to placeholder objects.'
-          );
           // Convert ID strings to placeholder resume objects
           this.resumes = data.map((resumeId: string, index: number) => ({
             _id: resumeId,
@@ -531,21 +524,17 @@ export class DashboardComponent implements OnInit {
           this.resumes = (data || []).map((resume: any, index: number) => {
             // Ensure resume has an ID
             if (!resume._id && !resume.id) {
-              console.warn(`Resume at index ${index} missing ID:`, resume);
               resume._id = `temp_${Date.now()}_${index}`;
             }
             return resume;
           });
         }
 
-        console.log('Processed resumes:', this.resumes);
         this.isLoading = false;
       },
       error: (error: any) => {
-        console.error('Error loading resumes:', error);
         this.isLoading = false;
         if (error.status === 401) {
-          console.log('User not authenticated, redirecting to login');
           this.router.navigate(['/login']);
         }
       },
@@ -584,11 +573,9 @@ export class DashboardComponent implements OnInit {
 
       this.resumeService.createResume(resumeCopy).subscribe({
         next: (newResume) => {
-          console.log('Resume duplicated:', newResume);
           this.loadResumes(); // Reload to show the new resume
         },
         error: (error) => {
-          console.error('Error duplicating resume:', error);
           alert('Error creating copy. Please try again.');
         },
       });
@@ -608,11 +595,9 @@ export class DashboardComponent implements OnInit {
     ) {
       this.resumeService.deleteResume(resumeId).subscribe({
         next: () => {
-          console.log('Resume deleted successfully');
           this.resumes.splice(index, 1); // Remove from local array
         },
         error: (error) => {
-          console.error('Error deleting resume:', error);
           alert('Error deleting resume. Please try again.');
         },
       });
@@ -644,7 +629,7 @@ export class DashboardComponent implements OnInit {
 
   // Method to fix corrupted resume data
   fixCorruptedData() {
-    console.log('Attempting to fix corrupted resume data...'); // Call the migration endpoint
+    // Call the migration endpoint
     fetch(`${environment.apiUrl}/resumes/fix-data`, {
       method: 'POST',
       credentials: 'include',
@@ -654,13 +639,11 @@ export class DashboardComponent implements OnInit {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Migration result:', data);
         alert('Data migration completed. Please refresh the page.');
         // Reload resumes after migration
         this.loadResumes();
       })
       .catch((error) => {
-        console.error('Migration failed:', error);
         alert('Failed to migrate data. Please contact support.');
       });
   }
