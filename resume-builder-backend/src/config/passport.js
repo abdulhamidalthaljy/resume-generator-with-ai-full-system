@@ -7,7 +7,7 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID || '1234567890-example.apps.googleusercontent.com',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'EXAMPLE-secret-EXAMPLE',
     callbackURL: process.env.NODE_ENV === 'production'
-        ? `${process.env.API_URL || 'https://resume-generator-with-ai-full-system-production.up.railway.app'}/api/auth/google/callback`
+        ? `${process.env.API_URL || 'https://resume-generator-with-ai-full-system-production-2a76.up.railway.app'}/api/auth/google/callback`
         : '/api/auth/google/callback',
     proxy: true
 },
