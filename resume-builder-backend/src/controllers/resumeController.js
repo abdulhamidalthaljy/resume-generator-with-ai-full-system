@@ -7,8 +7,15 @@ const mongoose = require('mongoose');
 // Get all resumes for the authenticated user
 exports.getAllResumes = async (req, res, next) => {
     try {
+        console.log('GetAllResumes - req.user:', req.user);
+        console.log('GetAllResumes - req.user.id:', req.user.id);
+        console.log('GetAllResumes - req.user._id:', req.user._id);
+
         const user = await User.findById(req.user.id);
+        console.log('GetAllResumes - Found user:', !!user);
+
         if (!user) {
+            console.log('GetAllResumes - User not found for ID:', req.user.id);
             return res.status(404).json({ message: "User not found" });
         }
 
