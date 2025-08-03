@@ -6,7 +6,6 @@ const mongoose = require('mongoose');
 const passport = require('./config/passport'); // Load passport configuration
 const resumeRoutes = require('./routes/resumeRoutes');
 const authRoutes = require('./routes/auth'); // Import auth routes with JWT support
-const pdfRoutes = require('./routes/pdfRoutes'); // Import PDF routes
 const ensureAuthenticated = require('./middleware/ensureAuth');
 
 const app = express();
@@ -62,7 +61,6 @@ app.get('/', (req, res) => {
 // This should come AFTER the body parsers
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/pdf', pdfRoutes); // Add PDF routes
 
 // --- Protected Route Example ---
 // app.get('/api/protected', ensureAuthenticated, (req, res) => {
@@ -72,7 +70,8 @@ app.use('/api/pdf', pdfRoutes); // Add PDF routes
 // --- Error Handling Middleware (Basic Example) ---
 // This should be defined AFTER all your routes
 app.use((err, req, res, next) => {
-  res.status(err.status || 500).send({
+  console.error('Error middleware triggered:', err);
+  res.status(err.status || 500).json({
     error: {
       message: err.message || 'Something went wrong!',
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
