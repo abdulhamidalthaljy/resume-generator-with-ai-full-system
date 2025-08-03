@@ -54,7 +54,21 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' })); // For parsing 
 
 // --- Basic Route (for testing) ---
 app.get('/', (req, res) => {
-  res.send('Resume Builder API is alive!');
+  res.json({ message: 'Resume Builder API is alive!', timestamp: new Date().toISOString() });
+});
+
+// Test route without authentication
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Test endpoint working', timestamp: new Date().toISOString() });
+});
+
+// Test route with authentication
+app.get('/api/test-auth', ensureAuthenticated, (req, res) => {
+  res.json({
+    message: 'Authenticated test endpoint working',
+    user: req.user,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // --- API Routes ---
