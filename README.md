@@ -1,6 +1,8 @@
 # Resume Builder - Professional Resume Creation Platform
 
-A modern, full-stack web application for creating professional resumes with real-time collaboration, AI-powered content generation, and multiple professional templates.
+A modern, full-stack web application for creating professional resumes with AI-powered content generation and multiple professional templates.
+
+🌐 **Live Demo**: [https://resume-generator-with-ai-full-syste.vercel.app](https://resume-generator-with-ai-full-syste.vercel.app)
 
 ## 🚀 Features
 
@@ -8,10 +10,11 @@ A modern, full-stack web application for creating professional resumes with real
 - **Real-Time Live Preview**: Side-by-side editing with instant visual feedback
 - **AI Content Generation**: Google Gemini AI integration for intelligent content creation
 - **Real-Time Collaboration**: Socket.io-powered live notifications and activity feed
-- **Professional PDF Export**: Server-side PDF generation using Puppeteer and PDF-lib
+- **PDF Export**: Browser-based PDF generation with "Save as PDF" functionality
 - **Auto-Save Functionality**: Automatic saving with visual indicators
-- **Google OAuth Authentication**: Secure login with Google accounts
+- **Google OAuth Authentication**: Secure login with Google accounts using JWT tokens
 - **Responsive Design**: Mobile-friendly interface with Tailwind CSS
+- **Production Deployment**: Frontend on Vercel, Backend on Railway
 
 ## 🏗️ Technology Stack
 
@@ -28,9 +31,9 @@ A modern, full-stack web application for creating professional resumes with real
 - **Node.js & Express.js**
 - **MongoDB with Mongoose**
 - **Socket.io Server**
-- **Passport.js (Google OAuth2)**
-- **Puppeteer (PDF Generation)**
-- **PDF-lib (PDF Processing)**
+- **Passport.js (Google OAuth2 with JWT)**
+- **JWT Authentication** for cross-origin requests
+- **Deployed on Railway**
 
 ### AI Integration
 
@@ -66,8 +69,8 @@ npm install -g @angular/cli
 4. Go to "Credentials" → "Create Credentials" → "OAuth 2.0 Client IDs"
 5. Set application type as "Web application"
 6. Add authorized redirect URIs:
-   - `http://localhost:5050/auth/google/callback`
-   - `http://localhost:4201/auth/google/callback`
+   - For local development: `http://localhost:5050/api/auth/google/callback`
+   - For production: `https://resume-generator-with-ai-full-system-production-2a76.up.railway.app/api/auth/google/callback`
 
 #### Gemini AI API:
 
@@ -94,8 +97,9 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/resume_builder?r
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 
-# Session Secret
+# Session Secret & JWT
 SESSION_SECRET=your_random_session_secret_key
+JWT_SECRET=your_jwt_secret_key_for_production
 
 # Gemini AI
 GEMINI_API_KEY=your_gemini_api_key
@@ -103,36 +107,47 @@ GEMINI_API_KEY=your_gemini_api_key
 # Server Configuration
 PORT=5050
 NODE_ENV=development
+
+# Production URLs (for Railway deployment)
+CLIENT_URL=https://resume-generator-with-ai-full-syste.vercel.app
+API_URL=https://resume-generator-with-ai-full-system-production-2a76.up.railway.app
 ```
 
 ### 4. Frontend Environment Variables
 
-Create/update `resume-builder-angular/src/environments/environment.ts`:
+Update `resume-builder-angular/src/environments/environment.ts`:
 
 ```typescript
-export const environment = {
-  production: false,
-  apiUrl: "http://localhost:5050",
-  geminiApiKey: "your_gemini_api_key",
-};
-```
+// Detect if running in production based on hostname
+const isProduction = typeof window !== 'undefined' && 
+  (window.location.hostname.includes('vercel.app') || 
+   window.location.hostname.includes('netlify.app') ||
+   window.location.hostname !== 'localhost');
 
-Create `resume-builder-angular/src/environments/environment.prod.ts`:
-
-```typescript
 export const environment = {
-  production: true,
-  apiUrl: "your_production_api_url",
-  geminiApiKey: "your_production_gemini_api_key",
+  production: isProduction,
+  apiUrl: isProduction
+    ? 'https://resume-generator-with-ai-full-system-production-2a76.up.railway.app/api'
+    : 'http://localhost:5050/api',
 };
 ```
 
 ## 🚀 Installation & Running
 
+### Option 1: Use the Live Production App
+
+Visit the live application at: [https://resume-generator-with-ai-full-syste.vercel.app](https://resume-generator-with-ai-full-syste.vercel.app)
+
+- Frontend hosted on **Vercel**
+- Backend API hosted on **Railway**
+- Database on **MongoDB Atlas**
+
+### Option 2: Local Development Setup
+
 ### 1. Clone the Repository
 
 ```bash
-git clone <https://github.com/abdulhamidalthaljy/resume-generator-with-ai-full-system>
+git clone https://github.com/abdulhamidalthaljy/resume-generator-with-ai-full-system
 cd resume-generator-with-ai-full-system
 ```
 
@@ -242,9 +257,10 @@ my_project/
 
 ### 1. Authentication
 
-- Navigate to `http://localhost:4201`
+- Navigate to [https://resume-generator-with-ai-full-syste.vercel.app](https://resume-generator-with-ai-full-syste.vercel.app) or `http://localhost:4201`
 - Click "Login with Google"
 - Complete Google OAuth flow
+- JWT token is automatically stored and managed
 
 ### 2. Creating a Resume
 
@@ -253,7 +269,8 @@ my_project/
 - Fill in your information using the form
 - Use AI generation for intelligent content creation
 - Preview your resume in real-time
-- Save and download as PDF
+- Save your resume (auto-saved to database)
+- Use "Save as PDF" to download
 
 ### 3. Real-Time Features
 
@@ -261,14 +278,35 @@ my_project/
 - View activity feed on dashboard
 - Real-time user count display
 
+## 🌐 Deployment Architecture
+
+### Production Environment:
+
+- **Frontend**: Deployed on Vercel
+- **Backend**: Deployed on Railway
+- **Database**: MongoDB Atlas
+- **Authentication**: JWT-based for cross-origin compatibility
+- **PDF Generation**: Browser-based (window.print)
+
+### Key Production Features:
+
+- Cross-origin authentication with JWT tokens
+- Environment-aware API URL configuration
+- Auto-scaling on Railway and Vercel
+- Global CDN distribution via Vercel
+
 ## 📝 API Endpoints
+
+### Base URLs:
+- **Local**: `http://localhost:5050/api`
+- **Production**: `https://resume-generator-with-ai-full-system-production-2a76.up.railway.app/api`
 
 ### Authentication:
 
-- `GET /auth/google` - Initiate Google OAuth
-- `GET /auth/google/callback` - OAuth callback
-- `GET /auth/status` - Check auth status
-- `POST /auth/logout` - Logout user
+- `GET /api/auth/google` - Initiate Google OAuth
+- `GET /api/auth/google/callback` - OAuth callback
+- `GET /api/auth/status` - Check auth status (JWT)
+- `GET /api/auth/logout` - Logout user
 
 ### Resumes:
 
@@ -294,6 +332,7 @@ my_project/
 - **Activity Feed**: Real-time dashboard showing user activities
 - **Live User Count**: See how many users are currently online
 - **Broadcast Events**: CRUD operations notify all users instantly
+- **Cross-Platform Compatibility**: Works across different deployment platforms
 
 ### AI-Powered Content Generation
 
@@ -308,6 +347,13 @@ my_project/
 - **Template Switching**: Change templates without losing data
 - **Responsive Design**: Preview adapts to different screen sizes
 - **Print Optimization**: Preview shows exactly how PDF will look
+
+### PDF Export System
+
+- **Browser-Based Generation**: Uses browser's native print-to-PDF functionality
+- **No Server Dependencies**: Reduces server load and complexity
+- **High-Quality Output**: Professional PDF formatting
+- **Instant Download**: No server processing delays
 
 ### Professional Templates
 
