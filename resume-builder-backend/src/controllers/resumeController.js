@@ -29,10 +29,17 @@ exports.getAllResumes = async (req, res, next) => {
 // Create a new resume for the authenticated user
 exports.createResume = async (req, res, next) => {
     try {
+        console.log('CreateResume - req.user:', req.user);
+        console.log('CreateResume - req.user.id:', req.user.id);
+        console.log('CreateResume - req.user._id:', req.user._id);
+
         const resumeData = req.body;
 
         const user = await User.findById(req.user.id);
+        console.log('CreateResume - Found user:', !!user);
+
         if (!user) {
+            console.log('CreateResume - User not found for ID:', req.user.id);
             return res.status(404).json({ message: "User not found" });
         }
 

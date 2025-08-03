@@ -17,6 +17,8 @@ router.get('/google/callback',
         try {
             // Log successful authentication for debugging
             console.log('Google OAuth successful, user:', req.user);
+            console.log('Google OAuth user._id:', req.user._id);
+            console.log('Google OAuth user.id:', req.user.id);
 
             // Generate JWT token
             const token = generateToken(req.user);
